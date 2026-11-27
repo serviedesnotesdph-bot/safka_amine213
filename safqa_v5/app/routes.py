@@ -72,6 +72,9 @@ def index():
             Tender.description.ilike(search)
         ))
 
+    # ============================================================
+    # FREEMIUM : les offres < 48h sont réservées aux Premium
+    # ============================================================
     cutoff = datetime.utcnow() - timedelta(hours=48)
     is_premium_user = current_user.is_authenticated and current_user.is_premium
     if not is_premium_user:
@@ -79,6 +82,7 @@ def index():
 
     tenders = query.order_by(Tender.created_at.desc()).all()
 
+    # Compter les offres récentes masquées
     locked_count = 0
     if not is_premium_user:
         locked_count = Tender.query.filter(
@@ -115,8 +119,6 @@ def index():
                            show_expired=show_expired,
                            expired_count=expired_count,
                            today_str=today_str)
-      
-       
     
              
 # ============================================================
@@ -129,10 +131,13 @@ def tender_detail(tid):
         flash("Offre introuvable", "error")
         return redirect(url_for("routes.index"))
 
+    # ============================================================
+    # FREEMIUM : bloquer les offres récentes aux non-Premium
+    # ============================================================
     cutoff = datetime.utcnow() - timedelta(hours=48)
     is_premium_user = current_user.is_authenticated and current_user.is_premium
     if t.created_at > cutoff and not is_premium_user:
-        flash("Cette offre est recente (< 48h). Passez Premium pour la voir immediatement.", "warning")
+        flash("Cette offre est récente (< 48h). Passez Premium pour la voir immédiatement.", "warning")
         return redirect(url_for("routes.pricing"))
 
     fav = False
@@ -147,7 +152,6 @@ def tender_detail(tid):
         Tender.sector == t.sector, Tender.id != t.id
     ).order_by(Tender.created_at.desc()).limit(3).all()
 
-    # Calcul de progression de la checklist
     total_items = len(CHECKLIST_ITEMS)
     done_count = len(done)
     progress_pct = round(100 * done_count / total_items) if total_items else 0
@@ -156,7 +160,7 @@ def tender_detail(tid):
                            follow=follow, done=done,
                            progress_pct=progress_pct,
                            done_count=done_count,
-                           total_items=total_items)
+                           total_items=total_items)              
 
 
 @bp.route("/tenders/<int:tid>/follow", methods=["POST"])

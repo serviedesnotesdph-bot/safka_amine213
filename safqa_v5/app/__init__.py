@@ -67,7 +67,10 @@ class User(UserMixin, db.Model):
 
     @property
     def is_premium(self):
-        return self.role == "admin" or self.plan == "premium"
+        """True si l'utilisateur est admin OU a un plan premium actif."""
+        if self.role == "admin":
+            return True
+        return self.plan == "premium"
 
 
 class Tender(db.Model):
@@ -239,11 +242,7 @@ class Ad(db.Model):
         return round(100 * self.clicks / self.views, 1)
 
 
-# ============================================================
-# ANNUAIRE PROFESSIONNEL
-# ============================================================
 class Professional(db.Model):
-    """Profil professionnel dans l'annuaire (inscription payante)."""
     __tablename__ = "professionals"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, unique=True, index=True)
@@ -292,11 +291,7 @@ class Professional(db.Model):
         return [g.strip() for g in self.gallery.split(",") if g.strip()]
 
 
-# ============================================================
-# CHATBOT IA (conversations sauvegardées)
-# ============================================================
 class ChatConversation(db.Model):
-    """Une conversation avec l'assistant IA."""
     __tablename__ = "chat_conversations"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True, index=True)
@@ -308,7 +303,6 @@ class ChatConversation(db.Model):
 
 
 class ChatMessage(db.Model):
-    """Un message dans une conversation (user ou assistant)."""
     __tablename__ = "chat_messages"
     id = db.Column(db.Integer, primary_key=True)
     conversation_id = db.Column(db.Integer, db.ForeignKey("chat_conversations.id"), nullable=False, index=True)
@@ -397,9 +391,8 @@ def create_app():
             "ad_formulas": AD_FORMULAS,
             "follow_statuses": FOLLOW_STATUSES,
             "checklist_items": CHECKLIST_ITEMS,
-             "unread_notif": unread,
+            "unread_notif": unread,
             "today_str": datetime.utcnow().strftime("%Y-%m-%d"),
-           
         }
 
     from app.routes import bp
