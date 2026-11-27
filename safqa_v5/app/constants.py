@@ -1,0 +1,180 @@
+# -*- coding: utf-8 -*-
+SECTORS = {
+    "travaux": "Travaux",
+    "fournitures": "Fournitures",
+    "services": "Services",
+    "etudes": "Etudes",
+}
+
+COMMUNES = [
+    "Toute la wilaya",
+    "Sidi Bel Abbes",
+    "Telagh",
+    "Tessala",
+    "Sfisef",
+    "Ben Badis",
+    "Ras El Ma",
+    "Ain Thrid",
+    "Sidi Lahcene",
+    "Sidi Ali Boussidi",
+    "Merine",
+    "Mostefa Ben Brahim",
+    "Sidi Brahim",
+    "Sidi Hamadouche",
+    "Moulay Slissen",
+    "Lamtar",
+    "Hassi Zahana",
+    "Tabia",
+    "Ain El Berd",
+    "Bir El Hammam",
+]
+
+FAVORITE_SECTORS = {
+    "btp": {
+        "label": "BTP",
+        "label_full": "Bâtiment et Travaux Publics",
+        "icon": "🏗️",
+        "color": "#d97706",
+        "keywords": ["travaux", "construction", "bâtiment", "batiment", "route", "pont",
+                     "voirie", "chantier", "réhabilitation", "rehabilitation", "aménagement",
+                     "amenagement", "génie civil", "genie civil", "maçonnerie", "béton",
+                     "asphalte", "assainissement", "ouvrage"],
+    },
+    "informatique": {
+        "label": "Informatique",
+        "label_full": "Informatique & Numérique",
+        "icon": "💻",
+        "color": "#1e40af",
+        "keywords": ["informatique", "logiciel", "ordinateur", "matériel", "materiel",
+                     "numérique", "numerique", "réseau", "reseau", "système", "systeme",
+                     "serveur", "maintenance informatique", "câblage", "cablage",
+                     "fibre", "télécom", "telecom", "digital", "site web", "application"],
+    },
+    "sante": {
+        "label": "Santé",
+        "label_full": "Santé & Médical",
+        "icon": "🏥",
+        "color": "#dc2626",
+        "keywords": ["santé", "sante", "médical", "medical", "hôpital", "hopital",
+                     "clinique", "pharmacie", "médicament", "medicament", "équipement médical",
+                     "equipement medical", "ambulance", "infirmier", "chirurgical"],
+    },
+    "hydraulique": {
+        "label": "Hydraulique",
+        "label_full": "Eau & Hydraulique",
+        "icon": "💧",
+        "color": "#0891b2",
+        "keywords": ["hydraulique", "eau", "forage", "pompage", "station d'épuration",
+                     "station epuration", "réseau d'eau", "reseau eau", "conduite",
+                     "canalisation", "château d'eau", "chateau eau", "irrigation",
+                     "barrage", "assainissement liquide", "égout", "egout"],
+    },
+    "services": {
+        "label": "Services",
+        "label_full": "Services aux entreprises",
+        "icon": "🔧",
+        "color": "#7c3aed",
+        "keywords": ["service", "nettoyage", "gardiennage", "sécurité", "securite",
+                     "maintenance", "entretien", "restauration", "formation",
+                     "transport", "logistique", "conseil", "audit", "étude", "etude"],
+    },
+    "energie": {
+        "label": "Énergie",
+        "label_full": "Énergie & Électricité",
+        "icon": "⚡",
+        "color": "#ea580c",
+        "keywords": ["énergie", "energie", "électricité", "electricite", "électrique",
+                     "electrique", "éclairage", "eclairage", "solaire", "photovoltaïque",
+                     "photovoltaique", "gaz", "pétrole", "petrole", "carburant",
+                     "centrale", "poste électrique", "poste electrique", "câble", "cable"],
+    },
+    "agroalimentaire": {
+        "label": "Agroalimentaire",
+        "label_full": "Agriculture & Agroalimentaire",
+        "icon": "🌾",
+        "color": "#65a30d",
+        "keywords": ["agriculture", "agricole", "agroalimentaire", "alimentaire",
+                     "denrée", "denree", "céréale", "cereale", "légume", "legume",
+                     "fruit", "viande", "lait", "olive", "huile", "semoule",
+                     "farine", "cantines", "restauration scolaire"],
+    },
+}
+
+
+# ============================================================
+# ANNUAIRE PROFESSIONNEL — Catégories
+# ============================================================
+PROFESSIONAL_CATEGORIES = {
+    "electricien": {
+        "label": "Électricien",
+        "icon": "⚡",
+        "color": "#ea580c",
+        "keywords": ["électricité", "electricite", "électrique", "electrique", "installation électrique", "câblage", "cablage", "tableau", "disjoncteur"],
+    },
+    "plombier": {
+        "label": "Plombier",
+        "icon": "🔧",
+        "color": "#0891b2",
+        "keywords": ["plomberie", "eau", "tuyau", "robinet", "sanitaire", "chauffe-eau", "fuite", "canalisation"],
+    },
+    "macon": {
+        "label": "Maçon",
+        "icon": "🧱",
+        "color": "#d97706",
+        "keywords": ["maçonnerie", "maconnerie", "brique", "ciment", "béton", "beton", "mur", "construction"],
+    },
+    "peintre": {
+        "label": "Peintre",
+        "icon": "🎨",
+        "color": "#7c3aed",
+        "keywords": ["peinture", "peindre", "enduit", "façade", "facade", "décoration", "decoration"],
+    },
+    "menuisier": {
+        "label": "Menuisier",
+        "icon": "🪚",
+        "color": "#78350f",
+        "keywords": ["menuiserie", "bois", "porte", "fenêtre", "fenetre", "meuble", "placard", "parquet"],
+    },
+    "btp": {
+        "label": "Entreprise BTP",
+        "icon": "🏗️",
+        "color": "#1e40af",
+        "keywords": ["btp", "construction", "travaux", "bâtiment", "batiment", "gros œuvre", "gros oeuvre", "chantier"],
+    },
+    "informatique": {
+        "label": "Informaticien",
+        "icon": "💻",
+        "color": "#0e7490",
+        "keywords": ["informatique", "ordinateur", "réseau", "reseau", "dépannage", "depannage", "logiciel", "web", "site"],
+    },
+    "froid": {
+        "label": "Froid & Climatisation",
+        "icon": "❄️",
+        "color": "#0369a1",
+        "keywords": ["froid", "climatisation", "clim", "réfrigération", "refrigeration", "chambre froide", "frigo"],
+    },
+    "transport": {
+        "label": "Transporteur",
+        "icon": "🚚",
+        "color": "#65a30d",
+        "keywords": ["transport", "livraison", "camion", "logistique", "déménagement", "demenagement"],
+    },
+    "nettoyage": {
+        "label": "Nettoyage",
+        "icon": "🧹",
+        "color": "#16a34a",
+        "keywords": ["nettoyage", "ménage", "menage", "entretien", "propreté", "proprete", "hygiène", "hygiene"],
+    },
+    "securite": {
+        "label": "Sécurité & Gardiennage",
+        "icon": "🛡️",
+        "color": "#1e3a8a",
+        "keywords": ["sécurité", "securite", "gardiennage", "gardien", "alarme", "vidéosurveillance", "videosurveillance"],
+    },
+    "architecte": {
+        "label": "Architecte",
+        "icon": "📐",
+        "color": "#c026d3",
+        "keywords": ["architecture", "architecte", "plan", "permis", "construction", "rénovation", "renovation"],
+    },
+}

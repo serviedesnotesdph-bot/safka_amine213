@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>💬 Conversation du {{ conv.created_at.strftime('%d/%m/%Y à %H:%M') if conv.created_at }}</h1>
+<p style="color:#666;margin-bottom:1.5rem">
+  {% if conv.conversation_type == 'tender' %}Analyse de cahier des charges{% else %}Question services{% endif %}
+</p>
+
+{% for msg in messages %}
+<div style="margin-bottom:1rem">
+  {% if msg.role == 'user' %}
+    <div style="background:#e3f5ec;padding:1rem;border-radius:10px;border-left:4px solid #0e7c66;margin-left:2rem">
+      <strong style="color:#0e7c66">👤 Vous</strong>
+      <p style="margin:0.5rem 0 0;white-space:pre-wrap;font-size:0.9rem">{{ msg.content }}</p>
+    </div>
+  {% else %}
+    <div style="background:#f5f7f6;padding:1rem;border-radius:10px;border-left:4px solid #f2a900;margin-right:2rem">
+      <strong style="color:#f2a900">🤖 Assistant Safqa</strong>
+      <p style="margin:0.5rem 0 0;white-space:pre-wrap;font-size:0.9rem">{{ msg.content }}</p>
+    </div>
+  {% endif %}
+</div>
+{% endfor %}
+
+<div style="text-align:center;margin-top:2rem">
+  <a href="/chatbot" class="btn btn-accent">💬 Nouvelle conversation</a>
+  <a href="/chatbot/history" class="btn btn-ghost">📚 Historique</a>
+</div>
+{% endblock %}

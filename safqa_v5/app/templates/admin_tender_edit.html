@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<p><a href="/admin?tab=tenders">← Retour aux offres</a></p>
+<h1>✏️ Modifier l'offre #{{ t.id }}</h1>
+
+<form method="post" style="background:#fff;padding:1.5rem;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);max-width:700px">
+  {{ csrf_input() }}
+
+  <label>Titre *
+    <input type="text" name="title" value="{{ t.title }}" required maxlength="500">
+  </label>
+
+  <label>Organisme *
+    <input type="text" name="agency" value="{{ t.agency }}" required maxlength="200">
+  </label>
+
+  <div class="row">
+    <label>Date limite * (format YYYY-MM-DD)
+      <input type="text" name="deadline" value="{{ t.deadline }}" required placeholder="2027-06-30">
+    </label>
+    <label>Budget (DA)
+      <input type="text" name="budget_dzd" value="{{ t.budget_dzd or '' }}" placeholder="45000000">
+    </label>
+  </div>
+
+  <div class="row">
+    <label>Secteur
+      <select name="sector">
+        {% for k, v in sectors.items() %}
+          <option value="{{ k }}" {{ 'selected' if t.sector == k }}>{{ v }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Commune
+      <select name="commune">
+        {% for c in communes %}
+          <option value="{{ c }}" {{ 'selected' if t.commune == c }}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </div>
+
+  <label>Description
+    <textarea name="description" rows="5">{{ t.description or '' }}</textarea>
+  </label>
+
+  <div style="display:flex;gap:0.5rem;margin-top:1rem">
+    <button class="btn btn-accent" type="submit" style="flex:1">💾 Enregistrer les modifications</button>
+    <a href="/admin?tab=tenders" class="btn btn-ghost">Annuler</a>
+  </div>
+</form>
+{% endblock %}

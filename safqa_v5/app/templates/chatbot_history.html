@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📚 Mon historique de conversations</h1>
+
+{% if conversations %}
+{% for conv in conversations %}
+<a href="/chatbot/conversation/{{ conv.id }}" class="card" style="display:block;text-decoration:none;color:inherit;margin-bottom:0.8rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+    <div>
+      <strong>{% if conv.conversation_type == 'tender' %}📋 Analyse cahier des charges{% else %}💬 Question services{% endif %}</strong>
+      <p style="margin:0.3rem 0 0;color:#666;font-size:0.85rem">{{ conv.created_at.strftime('%d/%m/%Y à %H:%M') if conv.created_at }}</p>
+    </div>
+    <span class="chip">Voir →</span>
+  </div>
+</a>
+{% endfor %}
+{% else %}
+<div class="card" style="text-align:center;padding:3rem">
+  <p style="font-size:3rem;margin:0">💬</p>
+  <p style="color:#666;margin:1rem 0">Vous n'avez pas encore de conversation.</p>
+  <a href="/chatbot" class="btn btn-accent">Démarrer une conversation</a>
+</div>
+{% endif %}
+
+<p style="text-align:center;margin-top:2rem"><a href="/chatbot">← Nouvelle conversation</a></p>
+{% endblock %}

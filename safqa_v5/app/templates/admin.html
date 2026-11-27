@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem">
+  <h1 style="margin:0">⚙️ Administration</h1>
+  <a href="/" class="btn btn-ghost btn-sm">👁️ Voir le site public</a>
+</div>
+
+<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1.5rem;background:#fff;padding:0.5rem;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
+  <a href="/admin?tab=dashboard" class="btn btn-sm {{ '' if tab != 'dashboard' else 'btn-ghost' }}">📊 Dashboard</a>
+  <a href="/admin?tab=users" class="btn btn-sm {{ '' if tab != 'users' else 'btn-ghost' }}">👥 Utilisateurs</a>
+  <a href="/admin?tab=premium" class="btn btn-sm {{ '' if tab != 'premium' else 'btn-ghost' }}">⭐ Premium {% if stats.pending_premium > 0 %}<span style="background:#f2a900;color:#000;padding:0.1rem 0.4rem;border-radius:8px;font-size:0.7rem">{{ stats.pending_premium }}</span>{% endif %}</a>
+  <a href="/admin?tab=ads" class="btn btn-sm {{ '' if tab != 'ads' else 'btn-ghost' }}">📢 Publicités {% if stats.pending_ads > 0 %}<span style="background:#f2a900;color:#000;padding:0.1rem 0.4rem;border-radius:8px;font-size:0.7rem">{{ stats.pending_ads }}</span>{% endif %}</a>
+  <a href="/admin?tab=directory" class="btn btn-sm {{ '' if tab != 'directory' else 'btn-ghost' }}">📇 Annuaire {% if stats.pending_professionals > 0 %}<span style="background:#f2a900;color:#000;padding:0.1rem 0.4rem;border-radius:8px;font-size:0.7rem">{{ stats.pending_professionals }}</span>{% endif %}</a>
+  <a href="/admin?tab=tenders" class="btn btn-sm {{ '' if tab != 'tenders' else 'btn-ghost' }}">📋 Offres</a>
+  <a href="/admin?tab=import" class="btn btn-sm {{ '' if tab != 'import' else 'btn-ghost' }}">📥 Import</a>
+  <a href="/admin/audit" class="btn btn-sm btn-ghost">📜 Audit</a>
+</div>
+
+{% if tab == 'dashboard' %}
+<div class="card" style="background:linear-gradient(135deg,#0e7c66,#0a5c4b);color:white;padding:1.5rem;border:none">
+  <h2 style="margin:0;color:white">👋 Bienvenue, {{ current_user.full_name }}</h2>
+  <p style="margin:0.3rem 0 0;opacity:0.9">Vous gérez la plateforme Safqa Belabbès.</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin:1.5rem 0">
+  <div class="card" style="text-align:center"><p style="font-size:1.8rem;margin:0;color:#0e7c66;font-weight:bold">{{ stats.users }}</p><p style="margin:0.3rem 0 0">Utilisateurs</p></div>
+  <div class="card" style="text-align:center"><p style="font-size:1.8rem;margin:0;color:#f2a900;font-weight:bold">{{ stats.premium }}</p><p style="margin:0.3rem 0 0">Premium</p></div>
+  <div class="card" style="text-align:center"><p style="font-size:1.8rem;margin:0;color:#0e7c66;font-weight:bold">{{ stats.tenders }}</p><p style="margin:0.3rem 0 0">Offres</p></div>
+  <div class="card" style="text-align:center"><p style="font-size:1.8rem;margin:0;color:#c0392b;font-weight:bold">{{ stats.pending_premium }}</p><p style="margin:0.3rem 0 0">Premium en attente</p></div>
+  <div class="card" style="text-align:center"><p style="font-size:1.8rem;margin:0;color:#c0392b;font-weight:bold">{{ stats.pending_ads }}</p><p style="margin:0.3rem 0 0">Pubs en attente</p></div>
+  <div class="card" style="text-align:center"><p style="font-size:1.8rem;margin:0;color:#c0392b;font-weight:bold">{{ stats.pending_professionals }}</p><p style="margin:0.3rem 0 0">Pros en attente</p></div>
+</div>
+<div class="card" style="background:#fffbf0;border-left-color:#f2a900">
+  <h3 style="margin-top:0">📨 Rappels d'échéance</h3>
+  <p style="color:#666;font-size:0.9rem">Envoie les rappels J-7, J-3, J-1 aux utilisateurs qui suivent un marché.</p>
+  <form method="post" action="/admin/send-reminders" class="inline-form" onsubmit="return confirm('Envoyer ?')">
+    {{ csrf_input() }}
+    <button class="btn btn-sm" type="submit">📤 Lancer les rappels</button>
+  </form>
+</div>
+<h2>📜 Actions récentes</h2>
+{% for log in recent_audit %}
+<div class="notif-item"><span><strong>{{ log.action }}</strong>{% if log.details %} — {{ log.details[:60] }}{% endif %}</span><small style="color:#999">{{ log.created_at.strftime('%d/%m/%Y %H:%M') if log.created_at }}</small></div>
+{% else %}<p style="color:#666">Aucune action.</p>{% endfor %}
+{% endif %}
+
+{% if tab == 'users' %}
+<h2>👥 Utilisateurs ({{ users|length }})</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Nom</th><th>Email</th><th>Rôle</th><th>Plan</th><th>Statut</th><th>Actions</th></tr></thead>
+<tbody>{% for u in users %}
+<tr style="{{ 'opacity:0.6' if not u.active }}">
+<td>{{ u.id }}</td><td>{{ u.full_name }}</td><td>{{ u.email }}</td>
+<td><span class="chip">{{ u.role }}</span></td>
+<td><span class="chip {{ 'chip-warning' if u.plan == 'premium' }}">{{ u.plan }}</span></td>
+<td>{% if u.active %}<span class="chip chip-success">Actif</span>{% else %}<span class="chip chip-danger">Inactif</span>{% endif %}</td>
+<td style="display:flex;gap:0.3rem;flex-wrap:wrap">
+<form method="post" action="/admin/user/{{ u.id }}/toggle_active" class="inline-form">{{ csrf_input() }}<button class="btn btn-sm btn-ghost" type="submit">{{ 'Désactiver' if u.active else 'Activer' }}</button></form>
+<form method="post" action="/admin/user/{{ u.id }}/toggle_admin" class="inline-form">{{ csrf_input() }}<button class="btn btn-sm btn-ghost" type="submit">{{ 'Retirer admin' if u.role == 'admin' else 'Rendre admin' }}</button></form>
+<form method="post" action="/admin/user/{{ u.id }}/delete" class="inline-form">{{ csrf_input() }}<button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Supprimer ?')">Supprimer</button></form>
+</td></tr>{% endfor %}</tbody></table></div>
+{% endif %}
+
+{% if tab == 'premium' %}
+<h2>⭐ Demandes Premium ({{ pending_premium|length }})</h2>
+{% for req in pending_premium %}
+<div class="notif-item">
+  <div><strong>{{ req.user.full_name }}</strong> — <small>{{ req.user.email }}</small> — <span class="chip">{{ req.amount_dzd }} DA</span>
+  {% if req.receipt_path %}<br><a href="/static/{{ req.receipt_path }}" target="_blank" class="btn btn-sm btn-ghost">📎 Voir reçu</a>{% endif %}</div>
+  <div style="display:flex;gap:0.3rem">
+    <form method="post" action="/admin/premium/{{ req.user_id }}/approve" class="inline-form">{{ csrf_input() }}<button class="btn btn-sm btn-success" type="submit">✅ Approuver</button></form>
+    <form method="post" action="/admin/premium/{{ req.user_id }}/reject" class="inline-form">{{ csrf_input() }}<button class="btn btn-sm btn-danger" type="submit">❌ Rejeter</button></form>
+  </div>
+</div>
+{% else %}<p style="color:#666">Aucune demande.</p>{% endfor %}
+{% endif %}
+
+{% if tab == 'ads' %}
+<h2>💰 Publicités à valider ({{ pending_ads|length }})</h2>
+{% for ad in pending_ads %}
+<div class="notif-item" style="flex-direction:column;align-items:flex-start">
+  <div style="width:100%"><strong>{{ ad.title }}</strong> — <span class="chip">{{ formulas.get(ad.formula, {}).get('label', ad.formula) }} — {{ ad.price_dzd }} DA</span><br><small>{{ ad.user.full_name }} — {{ ad.created_at.strftime('%d/%m/%Y') if ad.created_at }}</small><p style="margin:0.5rem 0">{{ ad.description[:150] }}</p>
+  {% if ad.receipt_path %}<a href="/static/{{ ad.receipt_path }}" target="_blank" class="btn btn-sm btn-ghost">📎 Voir reçu</a>{% endif %}</div>
+  <div style="display:flex;gap:0.3rem"><form method="post" action="/admin/ad/{{ ad.id }}/approve" class="inline-form">{{ csrf_input() }}<button class="btn btn-sm btn-success" type="submit">✅ Approuver</button></form>
+  <form method="post" action="/admin/ad/{{ ad.id }}/reject" class="inline-form">{{ csrf_input() }}<button class="btn btn-sm btn-danger" type="submit">❌ Rejeter</button></form></div>
+</div>
+{% else %}<p style="color:#666">Aucune pub à valider.</p>{% endfor %}
+{% endif %}
+
+{% if tab == 'directory' %}
+<h2>📇 Profils à valider ({{ pending_professionals|length }})</h2>
+{% for prof in pending_professionals %}
+<div class="notif-item" style="flex-direction:column;align-items:flex-start">
+  <div style="width:100%"><strong>{{ prof.business_name }}</strong> — <span class="chip">{{ professional_categories.get(prof.category, {}).get('label', prof.category) }}</span><br><small>{{ prof.user.full_name }} — {{ prof.commune }}</small><p style="margin:0.5rem 0">{{ prof.description[:150] }}</p>
+  {% if prof.receipt_path %}<a href="/static/{{ prof.receipt_path }}" target="_blank" class="btn btn-sm btn-ghost">📎 Voir reçu</a>{% endif %}</div>
+  <div style="display:flex;gap:0.3rem"><form method="post" action="/admin/professional/{{ prof.id }}/approve" class="inline-form">{{ csrf_input() }}<button class="btn btn-sm btn-success" type="submit">✅ Approuver</button></form>
+  <form method="post" action="/admin/professional/{{ prof.id }}/reject" class="inline-form">{{ csrf_input() }}<button class="btn btn-sm btn-danger" type="submit">❌ Rejeter</button></form></div>
+</div>
+{% else %}<p style="color:#666">Aucun profil à valider.</p>{% endfor %}
+{% endif %}
+
+{% if tab == 'tenders' %}
+<h2>📋 Offres ({{ tenders|length }})</h2>
+<form method="get" action="/admin" class="filters">
+  <input type="hidden" name="tab" value="tenders">
+  <label>Rechercher<input type="search" name="q" value="{{ request.args.get('q', '') }}" placeholder="Titre, organisme..."></label>
+  <label>Statut<select name="status_filter">
+    <option value="">Toutes</option>
+    <option value="active" {{ 'selected' if request.args.get('status_filter') == 'active' }}>Actives</option>
+    <option value="inactive" {{ 'selected' if request.args.get('status_filter') == 'inactive' }}>Désactivées</option>
+    <option value="expired" {{ 'selected' if request.args.get('status_filter') == 'expired' }}>Expirées</option>
+  </select></label>
+  <button class="btn" type="submit">🔍 Rechercher</button>
+  <a class="btn btn-ghost" href="/admin?tab=tenders">Réinitialiser</a>
+  <a class="btn btn-accent" href="/admin/export.csv" style="margin-left:auto">⬇️ Export CSV</a>
+</form>
+
+<h3>➕ Ajouter une offre</h3>
+<form method="post" action="/admin/tender/new" class="boxed-form" style="max-width:700px;margin-bottom:1.5rem">
+  {{ csrf_input() }}
+  <label>Titre *<input type="text" name="title" required maxlength="500"></label>
+  <div class="row"><label>Organisme *<input type="text" name="agency" required></label><label>Date limite *<input type="text" name="deadline" required placeholder="2027-06-30"></label></div>
+  <div class="row"><label>Secteur<select name="sector">{% for k, v in sectors.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></label><label>Commune<select name="commune">{% for c in communes %}<option value="{{ c }}">{{ c }}</option>{% endfor %}</select></label></div>
+  <label>Description<textarea name="description" rows="3"></textarea></label>
+  <button class="btn" type="submit">Ajouter</button>
+</form>
+
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Titre</th><th>Deadline</th><th>Statut</th><th>Actions</th></tr></thead>
+<tbody>{% for t in tenders %}
+<tr style="{{ 'opacity:0.6' if not t.is_active }}">
+<td>{{ t.id }}</td><td>{{ t.title[:60] }}</td><td>{{ t.deadline }}</td>
+<td>{% if t.is_active %}<span class="chip chip-success">Active</span>{% else %}<span class="chip chip-danger">Désactivée</span>{% endif %}</td>
+<td style="display:flex;gap:0.3rem;flex-wrap:wrap">
+<a href="/admin/tender/{{ t.id }}/edit" class="btn btn-sm btn-accent">✏️ Modifier</a>
+<form method="post" action="/admin/tender/{{ t.id }}/toggle" class="inline-form">{{ csrf_input() }}<button class="btn btn-sm {{ 'btn-success' if not t.is_active else 'btn-ghost' }}" type="submit">{{ 'Activer' if not t.is_active else 'Désactiver' }}</button></form>
+<form method="post" action="/admin/tender/{{ t.id }}/delete" class="inline-form">{{ csrf_input() }}<button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Supprimer ?')">Supprimer</button></form>
+</td></tr>{% endfor %}</tbody></table></div>
+{% endif %}
+
+{% if tab == 'import' %}
+<h2>📥 Import CSV</h2>
+<form method="post" action="/admin/import" enctype="multipart/form-data" class="boxed-form">{{ csrf_input() }}
+  <label>Fichier CSV<input type="file" name="file" accept=".csv" required></label>
+  <button class="btn" type="submit">Importer</button>
+</form>
+{% endif %}
+{% endblock %}

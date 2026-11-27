@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📝 Creer un compte</h1>
+<form method="post">
+  {{ csrf_input() }}
+  <label>Nom complet *
+    <input type="text" name="full_name" value="{{ form.get('full_name','') }}" required>
+  </label>
+  <label>Email *
+    <input type="email" name="email" value="{{ form.get('email','') }}" required>
+  </label>
+  <label>Telephone
+    <input type="tel" name="phone" value="{{ form.get('phone','') }}" placeholder="0550123456">
+  </label>
+  <label>Mot de passe * (8 caracteres min.)
+    <input type="password" name="password" minlength="8" required>
+  </label>
+  <label>Confirmer le mot de passe *
+    <input type="password" name="confirm" minlength="8" required>
+  </label>
+  <label>Question de securite
+    <select name="security_question">
+      <option value="">— Aucune —</option>
+      {% for key, q in security_questions.items() %}
+        <option value="{{ key }}">{{ q }}</option>
+      {% endfor %}
+    </select>
+    <small>Utilisee pour recuperer votre mot de passe</small>
+  </label>
+  <label>Reponse a la question
+    <input type="text" name="security_answer" maxlength="100" placeholder="Ex: Sidi Bel Abbes">
+  </label>
+  <button class="btn" type="submit">Creer mon compte</button>
+</form>
+<p style="margin-top:1rem;text-align:center">
+  Deja inscrit ? <a href="/login">Se connecter</a>
+</p>
+{% endblock %}

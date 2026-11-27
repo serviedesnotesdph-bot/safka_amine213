@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>✏️ Modifier mon profil</h1>
+
+<form method="post" enctype="multipart/form-data" style="background:#fff;padding:1.5rem;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+  {{ csrf_input() }}
+
+  <label>Nom de l'entreprise *
+    <input type="text" name="business_name" value="{{ prof.business_name }}" required maxlength="150">
+  </label>
+
+  <label>Catégorie *
+    <select name="category" required>
+      {% for key, info in professional_categories.items() %}
+        <option value="{{ key }}" {{ 'selected' if prof.category == key }}>{{ info.icon }} {{ info.label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Description *
+    <textarea name="description" rows="4" required maxlength="2000">{{ prof.description }}</textarea>
+  </label>
+
+  <label>Services
+    <textarea name="services" rows="3" maxlength="1000">{{ prof.services or '' }}</textarea>
+  </label>
+
+  <div class="row">
+    <label>Téléphone *<input type="tel" name="phone" value="{{ prof.phone }}" required maxlength="20"></label>
+    <label>WhatsApp<input type="tel" name="whatsapp" value="{{ prof.whatsapp or '' }}" maxlength="20"></label>
+  </div>
+
+  <label>Email public<input type="email" name="email_public" value="{{ prof.email_public or '' }}" maxlength="150"></label>
+
+  <label>Commune *
+    <select name="commune" required>
+      {% for c in communes %}
+        {% if c != "Toute la wilaya" %}
+          <option value="{{ c }}" {{ 'selected' if prof.commune == c }}>{{ c }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Adresse<input type="text" name="address" value="{{ prof.address or '' }}" maxlength="300"></label>
+  <label>📷 Photo de profil (actuelle)
+    {% if prof.photo_url %}
+      <div style="margin:0.5rem 0">
+        <img src="/static/{{ prof.photo_url }}" alt="Photo" style="max-width:120px;max-height:120px;border-radius:50%;border:3px solid #0e7c66;object-fit:cover">
+      </div>
+    {% endif %}
+    <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp">
+    <small>Max 5 Mo — JPG, PNG ou WebP</small>
+  </label>
+
+  <label>🖼️ Galerie de travaux (jusqu'à 3 photos, 5 Mo chacune)
+    {% if prof.gallery_list %}
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.5rem 0">
+        {% for img in prof.gallery_list %}
+          <img src="/static/{{ img }}" alt="Galerie" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ddd">
+        {% endfor %}
+      </div>
+    {% endif %}
+    <input type="file" name="gallery_0" accept=".jpg,.jpeg,.png,.webp" style="margin-bottom:0.3rem">
+    <input type="file" name="gallery_1" accept=".jpg,.jpeg,.png,.webp" style="margin-bottom:0.3rem">
+    <input type="file" name="gallery_2" accept=".jpg,.jpeg,.png,.webp">
+    <small>Ajoutez de nouvelles photos (elles s'ajoutent aux existantes)</small>
+  </label>
+  <label>Années d'expérience<input type="number" name="years_experience" value="{{ prof.years_experience or '' }}" min="0" max="60"></label>
+
+  <button class="btn btn-accent" type="submit" style="width:100%;padding:0.9rem;margin-top:0.5rem">Enregistrer</button>
+</form>
+
+<p style="text-align:center;margin-top:1rem"><a href="/my-professional">← Retour</a></p>
+{% endblock %}

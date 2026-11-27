@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>💎 Nos tarifs</h1>
+<p style="color:#666;margin-bottom:2rem;font-size:1.05rem">Choisissez la formule adaptee a votre activite.</p>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:2rem">
+
+  <div class="card" style="padding:2rem">
+    <h2 style="margin-top:0;color:#0e7c66">Gratuit</h2>
+    <p style="font-size:2.5rem;font-weight:bold;margin:1rem 0 0.5rem">0 DA</p>
+    <p style="color:#666;font-size:0.9rem;margin:0 0 1.5rem">Pour decouvrir la plateforme</p>
+    <ul style="list-style:none;padding:0;margin:0;line-height:2">
+      <li>✓ Consulter les offres > 48h</li>
+      <li>✓ Recherche et filtres</li>
+      <li>✓ 3 alertes personnalisees</li>
+      <li>✓ Favoris illimites</li>
+      <li>✓ Export calendrier</li>
+      <li style="color:#999">✗ Offres recentes (< 48h)</li>
+      <li style="color:#999">✗ Notifications SMS</li>
+    </ul>
+    {% if not current_user.is_authenticated %}
+      <a class="btn btn-ghost" href="/register" style="margin-top:1.5rem;width:100%;text-align:center;display:block">Creer un compte</a>
+    {% elif current_user.is_premium %}
+      <p style="margin-top:1.5rem;text-align:center;color:#666;font-size:0.9rem">Vous etes actuellement Premium</p>
+    {% else %}
+      <p style="margin-top:1.5rem;text-align:center;color:#0e7c66;font-weight:600">✓ Votre formule actuelle</p>
+    {% endif %}
+  </div>
+
+  <div class="card" style="padding:2rem;border:3px solid #f2a900;position:relative">
+    <span style="position:absolute;top:-12px;right:20px;background:#f2a900;color:#000;padding:0.2rem 0.8rem;border-radius:12px;font-size:0.8rem;font-weight:bold">RECOMMANDE</span>
+    <h2 style="margin-top:0;color:#f2a900">Premium</h2>
+    <p style="font-size:2.5rem;font-weight:bold;margin:1rem 0 0.5rem;color:#0e7c66">1 500 DA <span style="font-size:1rem;font-weight:normal;color:#666">/mois</span></p>
+    <p style="color:#666;font-size:0.9rem;margin:0 0 1.5rem">Pour ne rien manquer</p>
+    <ul style="list-style:none;padding:0;margin:0;line-height:2">
+      <li>✓ <strong>Toutes les offres immediatement</strong></li>
+      <li>✓ Alertes illimitees</li>
+      <li>✓ Notifications email</li>
+      <li>✓ Notifications SMS/Telegram</li>
+      <li>✓ Acces API</li>
+      <li>✓ Support prioritaire</li>
+    </ul>
+    {% if not current_user.is_authenticated %}
+      <a class="btn btn-accent" href="/register" style="margin-top:1.5rem;width:100%;text-align:center;display:block">Creer un compte</a>
+    {% elif current_user.is_premium %}
+      <p style="margin-top:1.5rem;text-align:center;color:#0a5c4b;font-weight:600">✓ Vous etes Premium !</p>
+    {% else %}
+      <a class="btn btn-accent" href="/upgrade" style="margin-top:1.5rem;width:100%;text-align:center;display:block">
+        Passer Premium
+      </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card" style="background:#f5f7f6;margin-top:2rem">
+  <h2 style="margin-top:0">💡 Pourquoi Premium ?</h2>
+  <p>Dans les marches publics, <strong>les premiers informes ont un avantage decisif</strong>. Les offres de moins de 48h sont souvent celles ou la concurrence est encore faible.</p>
+  <p style="margin-top:1rem">Avec Premium, vous recevez les nouvelles offres <strong>immediatement</strong> par email et SMS/Telegram, avant vos concurrents.</p>
+</div>
+
+<div class="card" style="background:#e3f5ec;border-left-color:#0e7c66">
+  <h2 style="margin-top:0">🎓 Vous etes etudiant / startup ?</h2>
+  <p>Contactez-nous a <strong>contact@safqa-belabbes.dz</strong> pour beneficier d'un tarif special.</p>
+</div>
+{% endblock %}

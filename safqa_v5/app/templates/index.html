@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem">
+  <h1 style="margin:0">📋 Offres des marchés publics</h1>
+  <a href="/" class="btn btn-sm btn-ghost">🔄 Actualiser</a>
+</div>
+<p style="margin-bottom:1rem;color:#666">{{ tenders|length }} offre(s) visible(s) — Sidi Bel Abbès</p>
+
+{% if locked_count > 0 %}
+<div class="card" style="background:linear-gradient(135deg,#fffbf0,#fff4d6);border-left-color:#f2a900">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+    <div>
+      <h3 style="margin:0;color:#8a5a00">🔒 {{ locked_count }} offre(s) récente(s) masquée(s)</h3>
+      <p style="margin:0.3rem 0 0;color:#666;font-size:0.9rem">Les offres de moins de 48h sont réservées aux Premium.</p>
+    </div>
+    <div style="display:flex;gap:0.5rem">
+      {% if not current_user.is_authenticated %}
+        <a class="btn btn-sm btn-ghost" href="/login">Connexion</a>
+        <a class="btn btn-sm btn-accent" href="/register">Inscription</a>
+      {% else %}
+        <a class="btn btn-sm btn-accent" href="/pricing">Passer Premium</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if sponsored_ads %}
+<div class="card" style="background:linear-gradient(135deg,#fffbf0,#fff9e8);border-left-color:#f2a900">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem">
+    <h2 style="margin:0;color:#8a5a00;font-size:1.1rem">📢 Annonces sponsorisées</h2>
+    <a href="/advertisers" class="btn btn-sm btn-ghost">Annoncez ici</a>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem">
+    {% for ad in sponsored_ads %}
+    <div style="background:#fff;padding:1rem;border-radius:8px;border:1px solid #eee">
+      <span class="chip" style="background:#fff4d6;color:#856460;font-size:0.7rem;font-weight:bold">SPONSORISÉ</span>
+      {% if ad.formula == 'featured' %}<span class="chip" style="background:#f2a900;color:#000;font-size:0.7rem;font-weight:bold">⭐ À LA UNE</span>{% endif %}
+      <h3 style="margin:0.5rem 0 0.3rem;font-size:1rem;color:#0e7c66">{{ ad.title }}</h3>
+      <p style="color:#666;font-size:0.85rem;margin:0 0 0.5rem">{{ ad.description[:120] }}{% if ad.description|length > 120 %}...{% endif %}</p>
+      {% if ad.company_name %}<p style="font-size:0.8rem;color:#999">🏢 {{ ad.company_name }}</p>{% endif %}
+      <a href="/ads/click/{{ ad.id }}" target="_blank" rel="noopener nofollow sponsored" class="btn btn-sm btn-accent">En savoir plus ↗</a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<form method="get" class="filters">
+  <label>Recherche<input type="search" name="q" value="{{ q }}" placeholder="Titre, organisme..."></label>
+  <label>Secteur<select name="sector"><option value="">Tous</option>{% for k, v in sectors.items() %}<option value="{{ k }}" {{ 'selected' if sector == k }}>{{ v }}</option>{% endfor %}</select></label>
+  <label>Commune<select name="commune"><option value="">Toutes</option>{% for c in communes %}<option value="{{ c }}" {{ 'selected' if commune == c }}>{{ c }}</option>{% endfor %}</select></label>
+  <label style="display:flex;align-items:center;gap:0.4rem;font-weight:normal">
+    <input type="checkbox" name="expired" value="1" {{ 'checked' if show_expired }} style="width:auto;accent-color:#0e7c66">
+    <span style="font-size:0.9rem">Inclure expirés{% if expired_count > 0 %} ({{ expired_count }}){% endif %}</span>
+  </label>
+  <button class="btn" type="submit">🔍 Filtrer</button>
+  <a class="btn btn-ghost" href="/">Réinitialiser</a>
+</form>
+
+{% if locked_count > 0 %}
+<h2>🔒 Offres Premium récentes</h2>
+{% for i in range(locked_count) %}
+<div class="card" style="background:repeating-linear-gradient(135deg,#fff,#fff 12px,#f7f9f8 12px,#f7f9f8 24px);border-left-color:#f2a900;opacity:0.85">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div><h3 style="color:#8a5a00">🔒 Offre récente masquée</h3><p style="color:#666;margin:0">Disponible en Premium</p></div>
+    <a class="btn btn-sm btn-accent" href="/pricing">Débloquer</a>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if tenders %}
+<h2>{% if locked_count > 0 %}📋 Offres visibles{% else %}📋 Toutes les offres{% endif %}</h2>
+{% endif %}
+
+{% for t in tenders %}
+<div class="card">
+  <h3><a href="/tenders/{{ t.id }}" style="color:#0e7c66;text-decoration:none">{{ t.title }}</a>
+  {% if t.deadline < today_str %}<span class="chip chip-danger" style="font-size:0.7rem">⚠️ Expiré</span>{% endif %}</h3>
+  <p><strong>Organisme :</strong> {{ t.agency }}</p>
+  <p><strong>Secteur :</strong> <span class="chip">{{ sectors.get(t.sector, t.sector) }}</span> <strong>Commune :</strong> <span class="chip">{{ t.commune }}</span></p>
+  <p><strong>Date limite :</strong> {{ t.deadline }}{% if t.budget_dzd %} — <strong>Budget :</strong> {{ "{:,}".format(t.budget_dzd) }} DA{% endif %}</p>
+  {% if t.description %}<p style="color:#666"><em>{{ t.description[:150] }}</em></p>{% endif %}
+  <div style="margin-top:0.7rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+    <a href="/tenders/{{ t.id }}" class="btn btn-sm">👁️ Voir le détail</a>
+    {% if current_user.is_authenticated %}
+    <form method="post" action="/favorites/toggle/{{ t.id }}" class="inline-form">
+      {{ csrf_input() }}
+      <button class="btn btn-sm {{ 'btn-ghost' if t.id not in fav_ids else '' }}" type="submit">{{ '★ Retirer' if t.id in fav_ids else '☆ Favori' }}</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<div class="card"><p>Aucune offre visible.</p></div>
+{% endfor %}
+{% endblock %}

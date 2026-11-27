@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<p><a href="/advertisers">← Retour à mes campagnes</a></p>
+
+<h1>{{ ad.title }}</h1>
+
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:1rem">
+    <div>
+      <p style="color:#666">{{ ad.description }}</p>
+      {% if ad.link %}<p style="margin-top:0.5rem"><a href="{{ ad.link }}" target="_blank">{{ ad.link }}</a></p>{% endif %}
+      {% if ad.company_name %}<p style="font-size:0.9rem;color:#666;margin-top:0.5rem">🏢 {{ ad.company_name }}</p>{% endif %}
+      {% if ad.contact_phone %}<p style="font-size:0.9rem;color:#666">📞 {{ ad.contact_phone }}</p>{% endif %}
+    </div>
+    <div style="text-align:right">
+      {% if ad.is_currently_active %}
+        <span class="chip" style="background:#d4edda;color:#155724">✅ Active</span>
+      {% elif ad.is_approved and not ad.is_active %}
+        <span class="chip" style="background:#fff4d6;color:#856404">⏸️ En pause</span>
+      {% elif ad.is_approved %}
+        <span class="chip" style="background:#d1ecf1;color:#0c5460">⏱️ Terminée</span>
+      {% else %}
+        <span class="chip" style="background:#fff4d6;color:#856404">⏳ En attente de validation</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<h2>📊 Statistiques</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem">
+  <div class="card" style="text-align:center;padding:1.5rem">
+    <p style="font-size:2.5rem;margin:0;color:#0e7c66;font-weight:bold">{{ ad.views }}</p>
+    <p style="margin:0.3rem 0 0;color:#666;font-size:0.9rem">Vues</p>
+  </div>
+  <div class="card" style="text-align:center;padding:1.5rem">
+    <p style="font-size:2.5rem;margin:0;color:#c0392b;font-weight:bold">{{ ad.clicks }}</p>
+    <p style="margin:0.3rem 0 0;color:#666;font-size:0.9rem">Clics</p>
+  </div>
+  <div class="card" style="text-align:center;padding:1.5rem">
+    <p style="font-size:2.5rem;margin:0;color:#f2a900;font-weight:bold">{{ ad.ctr }}%</p>
+    <p style="margin:0.3rem 0 0;color:#666;font-size:0.9rem">CTR</p>
+  </div>
+</div>
+
+<h2>📋 Détails de la campagne</h2>
+<div class="card">
+  <p><strong>Formule :</strong> {{ formulas.get(ad.formula, {}).get('label', ad.formula) }}</p>
+  <p><strong>Durée :</strong> {{ ad.duration_days }} jours</p>
+  <p><strong>Prix :</strong> {{ ad.price_dzd }} DA</p>
+  <p><strong>Créée le :</strong> {{ ad.created_at.strftime('%d/%m/%Y à %H:%M') if ad.created_at }}</p>
+  {% if ad.starts_at %}<p><strong>Début de diffusion :</strong> {{ ad.starts_at.strftime('%d/%m/%Y') }}</p>{% endif %}
+  {% if ad.ends_at %}<p><strong>Fin de diffusion :</strong> {{ ad.ends_at.strftime('%d/%m/%Y') }}</p>{% endif %}
+</div>
+
+<div style="margin-top:1.5rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+  {% if ad.is_approved %}
+  <form method="post" action="/advertisers/{{ ad.id }}/toggle" class="inline-form">
+    {{ csrf_input() }}
+    <button class="btn" type="submit">{{ '⏸️ Mettre en pause' if ad.is_active else '▶️ Activer' }}</button>
+  </form>
+  {% endif %}
+  {% if not ad.is_currently_active %}
+  <form method="post" action="/advertisers/{{ ad.id }}/delete" class="inline-form" onsubmit="return confirm('Supprimer ?')">
+    {{ csrf_input() }}
+    <button class="btn btn-danger" type="submit">🗑️ Supprimer</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

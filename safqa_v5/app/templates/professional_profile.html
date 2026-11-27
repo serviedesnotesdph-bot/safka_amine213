@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+{% set cat = professional_categories.get(prof.category, {}) %}
+<p><a href="/directory">← Retour à l'annuaire</a></p>
+
+<div class="card" style="padding:0;overflow:hidden;border-left:none">
+  {# Bannière #}
+  <div style="background:linear-gradient(135deg,{{ cat.color or '#0e7c66' }},{{ cat.color or '#0a5c4b' }}cc);height:120px;position:relative"></div>
+
+  {# Photo + Nom #}
+  <div style="padding:1.5rem;margin-top:-40px;position:relative">
+    <div style="display:flex;align-items:end;gap:1rem;flex-wrap:wrap">
+            {% if prof.photo_url %}
+        <img src="/static/{{ prof.photo_url }}" alt="{{ prof.business_name }}" style="width:90px;height:90px;border-radius:50%;border:4px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.1);object-fit:cover">
+      {% else %}
+        <div style="width:90px;height:90px;border-radius:50%;background:{{ cat.color or '#0e7c66' }}20;border:4px solid white;display:flex;align-items:center;justify-content:center;font-size:3rem;box-shadow:0 2px 8px rgba(0,0,0,0.1)">{{ cat.icon or '👤' }}</div>
+      {% endif %}
+      <div style="flex:1;min-width:200px;padding-bottom:0.5rem">
+        <h1 style="margin:0;color:#12263a;font-size:1.5rem">{{ prof.business_name }}</h1>
+        <p style="margin:0.2rem 0;color:{{ cat.color }};font-weight:600;font-size:0.95rem">{{ cat.label }} — 📍 {{ prof.commune }}</p>
+        {% if prof.years_experience %}
+          <p style="margin:0.2rem 0;color:#666;font-size:0.85rem">⭐ {{ prof.years_experience }} ans d'expérience</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {# Boutons contact #}
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1.2rem">
+      <a href="/directory/{{ prof.id }}/phone-click" onclick="return confirm('Appeler {{ prof.phone }} ?')" class="btn" style="background:{{ cat.color or '#0e7c66' }};border-color:{{ cat.color or '#0e7c66' }}">📞 {{ prof.phone }}</a>
+      {% if prof.whatsapp %}
+        <a href="https://wa.me/213{{ prof.whatsapp[1:] if prof.whatsapp.startswith('0') else prof.whatsapp }}" target="_blank" class="btn" style="background:#25D366;border-color:#25D366">💬 WhatsApp</a>
+      {% endif %}
+      {% if prof.email_public %}
+        <a href="mailto:{{ prof.email_public }}" class="btn btn-ghost">📧 Email</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;margin-top:1.5rem">
+  <div>
+    <div class="card">
+      <h2 style="margin-top:0;color:#0e7c66">📝 À propos</h2>
+      <p style="white-space:pre-wrap;line-height:1.7">{{ prof.description }}</p>
+    </div>
+
+    {% if prof.services %}
+        {% if prof.gallery_list %}
+    <div class="card">
+      <h2 style="margin-top:0;color:#0e7c66">📸 Galerie de travaux</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.7rem">
+        {% for img in prof.gallery_list %}
+          <a href="/static/{{ img }}" target="_blank">
+            <img src="/static/{{ img }}" alt="Travaux" style="width:100%;height:150px;object-fit:cover;border-radius:8px;border:1px solid #ddd">
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    <div class="card">
+      <h2 style="margin-top:0;color:#0e7c66">🛠️ Services proposés</h2>
+      <p style="white-space:pre-wrap;line-height:1.7">{{ prof.services }}</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="card">
+      <h3 style="margin-top:0;color:#0e7c66">📍 Coordonnées</h3>
+      <p style="margin:0.5rem 0"><strong>📞 Téléphone :</strong><br>{{ prof.phone }}</p>
+      {% if prof.whatsapp %}<p style="margin:0.5rem 0"><strong>💬 WhatsApp :</strong><br>{{ prof.whatsapp }}</p>{% endif %}
+      {% if prof.email_public %}<p style="margin:0.5rem 0"><strong>📧 Email :</strong><br>{{ prof.email_public }}</p>{% endif %}
+      {% if prof.address %}
+      <p style="margin:0.5rem 0"><strong>🏠 Adresse :</strong><br>{{ prof.address }}<br>{{ prof.commune }}</p>
+      {% endif %}
+    </div>
+
+    <div class="card" style="background:#f5f7f6">
+      <h3 style="margin-top:0;color:#666;font-size:0.9rem">📊 Statistiques</h3>
+      <p style="margin:0.3rem 0;font-size:0.85rem;color:#666">👁️ {{ prof.views }} vues</p>
+      <p style="margin:0.3rem 0;font-size:0.85rem;color:#666">📞 {{ prof.phone_clicks }} appels</p>
+    </div>
+  </div>
+</div>
+
+<p style="text-align:center;margin-top:2rem;font-size:0.85rem;color:#999">
+  Profil vérifié par Safqa Belabbès · Publié jusqu'au {{ prof.ends_at.strftime('%d/%m/%Y') if prof.ends_at else '—' }}
+</p>
+{% endblock %}

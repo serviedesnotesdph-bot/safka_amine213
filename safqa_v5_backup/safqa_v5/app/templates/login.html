@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🔐 Connexion</h1>
+<form method="post">
+  {{ csrf_input() }}
+  <label>Email<input type="email" name="email" required></label>
+  <label>Mot de passe<input type="password" name="password" required></label>
+  <button class="btn" type="submit">Se connecter</button>
+</form>
+<p style="margin-top:1rem;color:#666;font-size:0.9rem">
+  Admin par defaut : <code>admin@safqa.dz</code> / <code>admin123456</code>
+</p>
+{% endblock %}

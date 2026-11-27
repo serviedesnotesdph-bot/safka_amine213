@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem">
+  <h1 style="margin:0">🔔 Mes alertes</h1>
+  <a href="/dashboard" class="btn btn-sm btn-ghost">← Tableau de bord</a>
+</div>
+
+<p style="color:#666;margin-bottom:1.5rem">Créez des alertes pour être notifié des nouvelles offres qui correspondent.</p>
+
+<h2>➕ Nouvelle alerte</h2>
+<form method="post" class="boxed-form">
+  {{ csrf_input() }}
+  <label>Secteur
+    <select name="sector">
+      <option value="">Tous les secteurs</option>
+      {% for k, v in sectors.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Commune
+    <select name="commune">
+      <option value="">Toutes les communes</option>
+      {% for c in communes %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Mots-clés (séparés par virgule)
+    <input type="text" name="keywords" maxlength="300" placeholder="route, école, électricité">
+  </label>
+  <label style="display:flex;align-items:center;gap:0.5rem;font-weight:normal">
+    <input type="checkbox" name="email_notifications" checked style="width:auto">
+    <span>📧 Recevoir par email</span>
+  </label>
+  <label style="display:flex;align-items:center;gap:0.5rem;font-weight:normal">
+    <input type="checkbox" name="sms_notifications" style="width:auto">
+    <span>📱 Recevoir par SMS/WhatsApp {% if not current_user.is_premium %}<span class="chip chip-warning" style="font-size:0.7rem">Premium</span>{% endif %}</span>
+  </label>
+  <button class="btn btn-accent" type="submit" style="width:100%">Créer l'alerte</button>
+</form>
+
+<h2>📋 Mes alertes ({{ alerts|length }})</h2>
+{% for a in alerts %}
+<div class="notif-item">
+  <div>
+    {% if a.sector %}<span class="chip">{{ sectors.get(a.sector, a.sector) }}</span>{% endif %}
+    {% if a.commune %}<span class="chip">📍 {{ a.commune }}</span>{% endif %}
+    {% if a.keywords %}<span class="chip">🔍 {{ a.keywords }}</span>{% endif %}
+    {% if a.email_notifications %}<span class="chip">📧</span>{% endif %}
+    {% if a.sms_notifications %}<span class="chip">📱</span>{% endif %}
+  </div>
+  <form method="post" action="/alerts/{{ a.id }}/delete" class="inline-form">
+    {{ csrf_input() }}
+    <button class="btn btn-sm btn-danger" type="submit">Supprimer</button>
+  </form>
+</div>
+{% else %}
+<p style="color:#666">Aucune alerte. Créez-en une ci-dessus.</p>
+{% endfor %}
+{% endblock %}

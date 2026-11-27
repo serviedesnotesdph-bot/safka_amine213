@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<p><a href="/admin">← Retour à l'admin</a></p>
+<h1>📜 Journal d'audit</h1>
+<p style="color:#666">Historique des actions administrateur (200 plus récentes)</p>
+
+{% for log in logs %}
+<div class="notif-item">
+  <div>
+    <strong>{{ log.action }}</strong>
+    {% if log.target_type %}<span class="chip">{{ log.target_type }} #{{ log.target_id }}</span>{% endif %}
+    {% if log.details %}<br><small style="color:#666">{{ log.details }}</small>{% endif %}
+  </div>
+  <div style="text-align:right">
+    <small>{{ log.created_at.strftime('%d/%m/%Y %H:%M') if log.created_at }}</small>
+    {% if log.admin %}<br><small style="color:#666">par {{ log.admin.full_name }}</small>{% endif %}
+    {% if log.ip_address %}<br><small style="color:#999">{{ log.ip_address }}</small>{% endif %}
+  </div>
+</div>
+{% else %}
+<div class="card"><p>Aucune action enregistrée pour le moment.</p></div>
+{% endfor %}
+{% endblock %}

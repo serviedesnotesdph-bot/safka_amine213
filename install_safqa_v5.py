@@ -2243,12 +2243,3 @@ if(e.target.closest("[data-theme-toggle]")){var r=document.documentElement;var d
 });
 '''
 
-# ============ README ============
-FILES['README.md'] = '''# Safqa Belabbès v5 — Architecture modulaire
-
-## Installation
-```bash
-python install_safqa_v5.py
-pip install -r requirements.txt
-cp .env.example .env
-python run.py

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🔐 Connexion</h1>
+<form method="post">
+  {{ csrf_input() }}
+  <label>Email<input type="email" name="email" required></label>
+  <label>Mot de passe<input type="password" name="password" required></label>
+  <button class="btn" type="submit">Se connecter</button>
+</form>
+<p style="margin-top:1rem;text-align:center">
+  <a href="/forgot-password">Mot de passe oublie ?</a>
+</p>
+<p style="margin-top:0.5rem;text-align:center">
+  Pas de compte ? <a href="/register">S'inscrire</a>
+</p>
+<p style="margin-top:1rem;color:#666;font-size:0.85rem;text-align:center">
+  Admin : <code>admin@safqa.dz</code> / <code>admin123456</code>
+</p>
+{% endblock %}

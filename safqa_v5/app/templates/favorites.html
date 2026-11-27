@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>⭐ Mes favoris</h1>
+{% for f in favs %}
+<div class="card">
+  <h3>{{ f.tender.title }}</h3>
+  <p><strong>Organisme :</strong> {{ f.tender.agency }}</p>
+  <p><strong>Secteur :</strong> <span class="chip">{{ sectors.get(f.tender.sector, f.tender.sector) }}</span>
+     <strong>Commune :</strong> <span class="chip">{{ f.tender.commune }}</span></p>
+  <p><strong>Date limite :</strong> {{ f.tender.deadline }}</p>
+  <form method="post" action="/favorites/toggle/{{ f.tender.id }}" class="inline-form">
+    {{ csrf_input() }}
+    <button class="btn btn-danger btn-sm" type="submit">Retirer</button>
+  </form>
+</div>
+{% else %}
+<p style="color:#666">Aucun favori. <a href="/">Parcourir les offres</a></p>
+{% endfor %}
+{% endblock %}

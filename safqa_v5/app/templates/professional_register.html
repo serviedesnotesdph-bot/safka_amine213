@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📝 Inscription à l'annuaire</h1>
+<p style="color:#666;margin-bottom:1.5rem">
+  Publiez votre profil professionnel pour être visible par les donneurs d'ordre de Sidi Bel Abbès.
+</p>
+
+<div class="card" style="background:#fffbf0;border-left-color:#f2a900">
+  <p style="margin:0"><strong>💰 Tarif :</strong> 3 000 DA pour 6 mois de publication.</p>
+  <p style="margin:0.3rem 0 0;font-size:0.85rem;color:#666">Vous réglez par virement CCP après avoir rempli le formulaire.</p>
+</div>
+
+<form method="post" enctype="multipart/form-data" style="background:#fff;padding:1.5rem;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-top:1.5rem">
+  {{ csrf_input() }}
+
+  <label>Nom de l'entreprise / professionnel *
+    <input type="text" name="business_name" value="{{ form.get('business_name', current_user.company or '') }}" required maxlength="150" placeholder="Ex: Électricité Karim">
+  </label>
+
+  <label>Catégorie * (votre métier)
+    <select name="category" required>
+      <option value="">— Choisir —</option>
+      {% for key, info in professional_categories.items() %}
+        <option value="{{ key }}" {{ 'selected' if form.get('category') == key }}>{{ info.icon }} {{ info.label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Description * (min. 30 caractères)
+    <textarea name="description" rows="4" required maxlength="2000" placeholder="Présentez votre activité, votre expérience, vos spécialités...">{{ form.get('description', '') }}</textarea>
+  </label>
+
+  <label>Services proposés
+    <textarea name="services" rows="3" maxlength="1000" placeholder="Ex: Installation électrique, dépannage 24/7, mise aux normes...">{{ form.get('services', '') }}</textarea>
+  </label>
+
+  <div class="row">
+    <label>Téléphone * 
+      <input type="tel" name="phone" value="{{ form.get('phone', current_user.phone or '') }}" required maxlength="20" placeholder="0550123456">
+    </label>
+    <label>WhatsApp
+      <input type="tel" name="whatsapp" value="{{ form.get('whatsapp', '') }}" maxlength="20" placeholder="0550123456">
+    </label>
+  </div>
+
+  <label>Email public
+    <input type="email" name="email_public" value="{{ form.get('email_public', current_user.email or '') }}" maxlength="150">
+  </label>
+
+  <label>Commune *
+    <select name="commune" required>
+      <option value="">— Choisir —</option>
+      {% for c in communes %}
+        {% if c != "Toute la wilaya" %}
+          <option value="{{ c }}" {{ 'selected' if form.get('commune') == c }}>{{ c }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>Adresse complète
+    <input type="text" name="address" value="{{ form.get('address', '') }}" maxlength="300" placeholder="Rue, quartier...">
+  </label>
+  <label>📷 Photo de profil (JPG, PNG, WebP — max 5 Mo)
+    <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp">
+    <small>Optionnel — une photo professionnelle augmente vos chances d'être contacté</small>
+  </label>
+  <label>Années d'expérience
+    <input type="number" name="years_experience" value="{{ form.get('years_experience', '') }}" min="0" max="60">
+  </label>
+
+  <button class="btn btn-accent" type="submit" style="width:100%;padding:0.9rem;margin-top:0.5rem">Créer mon profil</button>
+</form>
+
+<p style="text-align:center;margin-top:1rem"><a href="/my-professional">← Retour</a></p>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🤖 Assistant IA Safqa</h1>
+<p style="color:#666;margin-bottom:1.5rem">
+  Analysez un cahier des charges ou posez une question sur nos services.
+</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
+  <a href="/chatbot?type=tender" class="card" style="padding:1.5rem;text-decoration:none;border-left-color:#0e7c66;{{ 'box-shadow:0 0 0 3px #0e7c66' if chat_type == 'tender' }}">
+    <div style="font-size:2.5rem">📋</div>
+    <h3 style="margin:0.5rem 0;color:#0e7c66">Analyser un cahier des charges</h3>
+    <p style="color:#666;font-size:0.9rem;margin:0">Collez le texte, l'IA extrait les dates, montants, exigences et risques.</p>
+  </a>
+  <a href="/chatbot?type=service" class="card" style="padding:1.5rem;text-decoration:none;border-left-color:#f2a900;{{ 'box-shadow:0 0 0 3px #f2a900' if chat_type == 'service' }}">
+    <div style="font-size:2.5rem">💬</div>
+    <h3 style="margin:0.5rem 0;color:#f2a900">Poser une question sur nos services</h3>
+    <p style="color:#666;font-size:0.9rem;margin:0">Tarifs, Premium, dossier, annuaire, alertes... L'assistant vous répond.</p>
+  </a>
+</div>
+
+<form method="post" class="card" style="padding:1.5rem;background:#fff">
+  {{ csrf_input() }}
+  <input type="hidden" name="chat_type" value="{{ chat_type }}">
+
+  {% if chat_type == 'tender' %}
+    <label>Collez le texte du cahier des charges (min. 20 caractères)
+      <textarea name="content" rows="10" maxlength="10000" required placeholder="Collez ici le contenu du cahier des charges : exigences, dates, montants, conditions...">{{ question }}</textarea>
+    </label>
+    <p style="font-size:0.85rem;color:#999;margin-top:0.5rem">
+      💡 Astuce : Copiez-collez le texte du PDF ou du document Word.
+    </p>
+    <button class="btn btn-accent" type="submit" style="width:100%;padding:0.9rem">🔍 Analyser avec l'IA</button>
+  {% else %}
+    <label>Votre question
+      <textarea name="content" rows="4" maxlength="1000" required placeholder="Ex: Quels sont vos tarifs ? Comment devenir Premium ? Comment m'inscrire dans l'annuaire ?">{{ question }}</textarea>
+    </label>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;align-items:center">
+      <span style="font-size:0.85rem;color:#999">Suggestions :</span>
+      <button type="button" onclick="document.querySelector('textarea').value='Quels sont vos tarifs ?'" class="btn btn-sm btn-ghost" style="font-size:0.8rem">💰 Tarifs</button>
+      <button type="button" onclick="document.querySelector('textarea').value='C\'est quoi Premium ?'" class="btn btn-sm btn-ghost" style="font-size:0.8rem">💎 Premium</button>
+      <button type="button" onclick="document.querySelector('textarea').value='Comment préparer mon dossier ?'" class="btn btn-sm btn-ghost" style="font-size:0.8rem">📋 Dossier</button>
+      <button type="button" onclick="document.querySelector('textarea').value='Comment m\'inscrire dans l\'annuaire ?'" class="btn btn-sm btn-ghost" style="font-size:0.8rem">📇 Annuaire</button>
+    </div>
+    <button class="btn btn-accent" type="submit" style="width:100%;padding:0.9rem;margin-top:1rem">💬 Envoyer</button>
+  {% endif %}
+</form>
+
+{# ============ RÉPONSE DU CHATBOT (services) ============ #}
+{% if response_text and chat_type == 'service' %}
+<div class="card" style="background:#fffbf0;border-left-color:#f2a900;margin-top:1.5rem">
+  <h2 style="margin-top:0;color:#8a5a00">🤖 Réponse de l'assistant</h2>
+  <div style="white-space:pre-wrap;line-height:1.9;font-size:0.95rem">{{ response_text }}</div>
+</div>
+{% endif %}
+
+{# ============ ANALYSE CAHIER DES CHARGES (tender) ============ #}
+{% if analysis %}
+<div class="card" style="background:#e3f5ec;border-left-color:#0e7c66;margin-top:1.5rem">
+  <h2 style="margin-top:0;color:#0e7c66">📊 Résultat de l'analyse</h2>
+  <div style="white-space:pre-wrap;line-height:1.8;font-size:0.95rem">{{ analysis.summary }}</div>
+</div>
+
+{% if analysis.dates or analysis.amounts %}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem">
+  {% if analysis.dates %}
+  <div class="card" style="border-left-color:#1c5a8c">
+    <h3 style="margin-top:0">📅 Dates détectées</h3>
+    <ul style="margin:0;padding-left:1.2rem">
+      {% for d in analysis.dates[:5] %}<li>{{ d }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  {% if analysis.amounts %}
+  <div class="card" style="border-left-color:#f2a900">
+    <h3 style="margin-top:0">💰 Montants détectés</h3>
+    <ul style="margin:0;padding-left:1.2rem">
+      {% for a in analysis.amounts[:5] %}<li>{{ a }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if analysis.risks %}
+<div class="card" style="background:#fff4d6;border-left-color:#f2a900;margin-top:1rem">
+  <h3 style="margin-top:0">⚠️ Points d'attention</h3>
+  <ul style="margin:0;padding-left:1.2rem">
+    {% for r in analysis.risks %}<li>{{ r }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endif %}
+
+<div style="margin-top:2rem;text-align:center">
+  {% if current_user.is_authenticated %}
+    <a class="btn btn-ghost" href="/chatbot/history">📚 Voir mon historique</a>
+  {% endif %}
+  <a class="btn btn-ghost" href="/">← Accueil</a>
+</div>
+{% endblock %}

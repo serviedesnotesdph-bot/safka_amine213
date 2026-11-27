@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>➕ Créer une campagne publicitaire</h1>
+<p style="color:#666;margin-bottom:1.5rem">Remplissez le formulaire. Votre campagne sera active après validation admin.</p>
+
+<form method="post" class="boxed-form" style="max-width:600px">
+  {{ csrf_input() }}
+
+  <label>Titre de l'annonce *
+    <input type="text" name="title" required maxlength="200" placeholder="Ex: Cabinet comptable à Sidi Bel Abbès">
+  </label>
+
+  <label>Description *
+    <textarea name="description" rows="4" required maxlength="2000" placeholder="Décrivez votre entreprise, vos services, vos atouts..."></textarea>
+  </label>
+
+  <label>Lien (optionnel)
+    <input type="url" name="link" maxlength="500" placeholder="https://votre-site.dz">
+    <small>L'utilisateur sera redirigé vers ce lien en cliquant sur votre annonce</small>
+  </label>
+
+  <label>Nom de l'entreprise
+    <input type="text" name="company_name" maxlength="150" value="{{ current_user.company or '' }}">
+  </label>
+
+  <label>Téléphone de contact
+    <input type="tel" name="contact_phone" maxlength="20" value="{{ current_user.phone or '' }}">
+  </label>
+
+  <label>Formule *
+    <select name="formula" required>
+      {% for key, f in formulas.items() %}
+      <option value="{{ key }}">{{ f.label }} — {{ f.price }} DA</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <button class="btn btn-accent" type="submit" style="width:100%">Créer ma campagne</button>
+</form>
+
+<p style="text-align:center;margin-top:1rem">
+  <a href="/advertisers">← Retour à mes campagnes</a>
+</p>
+{% endblock %}

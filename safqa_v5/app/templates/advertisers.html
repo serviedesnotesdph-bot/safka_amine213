@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📢 Espace Publicitaire</h1>
+<p style="color:#666;margin-bottom:1.5rem">
+  Promouvez votre entreprise auprès des PME de Sidi Bel Abbès.
+</p>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem">
+  <div class="card" style="text-align:center;padding:1.5rem">
+    <p style="font-size:2rem;margin:0;color:#0e7c66;font-weight:bold">{{ my_ads|length }}</p>
+    <p style="margin:0.3rem 0 0;color:#666;font-size:0.9rem">Campagnes</p>
+  </div>
+  <div class="card" style="text-align:center;padding:1.5rem">
+    <p style="font-size:2rem;margin:0;color:#f2a900;font-weight:bold">{{ active_count }}</p>
+    <p style="margin:0.3rem 0 0;color:#666;font-size:0.9rem">Actives</p>
+  </div>
+  <div class="card" style="text-align:center;padding:1.5rem">
+    <p style="font-size:2rem;margin:0;color:#0e7c66;font-weight:bold">{{ total_views }}</p>
+    <p style="margin:0.3rem 0 0;color:#666;font-size:0.9rem">Vues totales</p>
+  </div>
+  <div class="card" style="text-align:center;padding:1.5rem">
+    <p style="font-size:2rem;margin:0;color:#c0392b;font-weight:bold">{{ total_clicks }}</p>
+    <p style="margin:0.3rem 0 0;color:#666;font-size:0.9rem">Clics totaux</p>
+  </div>
+</div>
+
+<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
+  <a class="btn btn-accent" href="/advertisers/new">➕ Créer une campagne</a>
+  <a class="btn btn-ghost" href="/">← Retour aux offres</a>
+</div>
+
+<h2>💰 Nos formules publicitaires</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1rem 0">
+  {% for key, f in formulas.items() %}
+  <div class="card" style="padding:1.5rem;{{ 'border:2px solid #f2a900' if f.featured }}">
+    <h3 style="margin-top:0">{{ f.label }}</h3>
+    <p style="font-size:1.8rem;font-weight:bold;color:#0e7c66;margin:0.5rem 0">{{ f.price }} DA</p>
+    <ul style="list-style:none;padding:0;font-size:0.9rem;line-height:1.9">
+      <li>✓ {{ f.days }} jours de diffusion</li>
+      <li>✓ Affichage sur la page d'accueil</li>
+      <li>✓ Statistiques (vues / clics)</li>
+      <li>✓ Mention "Sponsorisé"</li>
+      {% if f.featured %}<li>✓ <strong>Priorité d'affichage</strong></li>{% endif %}
+    </ul>
+  </div>
+  {% endfor %}
+</div>
+
+<h2>📋 Mes campagnes ({{ my_ads|length }})</h2>
+{% for ad in my_ads %}
+<div class="card" style="{{ 'opacity:0.6' if not ad.is_currently_active }}">
+  <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.5rem">
+    <div style="flex:1;min-width:250px">
+      <h3 style="margin-top:0">{{ ad.title }}</h3>
+      <p style="color:#666">{{ ad.description[:150] }}{% if ad.description|length > 150 %}...{% endif %}</p>
+      <p style="font-size:0.85rem;color:#666;margin-top:0.5rem">
+        <strong>Formule :</strong> {{ formulas.get(ad.formula, {}).get('label', ad.formula) }} —
+        <strong>Prix :</strong> {{ ad.price_dzd }} DA
+      </p>
+    </div>
+    <div style="text-align:right;min-width:140px">
+      {% if ad.payment_status == 'awaiting_payment' %}
+        <span class="chip" style="background:#f8d7da;color:#721c24">💳 Paiement requis</span>
+      {% elif ad.payment_status == 'awaiting_validation' %}
+        <span class="chip" style="background:#fff4d6;color:#856404">⏳ En validation</span>
+      {% elif ad.payment_status == 'rejected' %}
+        <span class="chip" style="background:#f8d7da;color:#721c24">❌ Rejetée</span>
+      {% elif ad.is_currently_active %}
+        <span class="chip" style="background:#d4edda;color:#155724">✅ Active</span>
+      {% elif ad.is_approved and not ad.is_active %}
+        <span class="chip" style="background:#fff4d6;color:#856404">⏸️ En pause</span>
+      {% elif ad.is_approved %}
+        <span class="chip" style="background:#d1ecf1;color:#0c5460">⏱️ Terminée</span>
+      {% else %}
+        <span class="chip" style="background:#fff4d6;color:#856404">⏳ En attente</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div style="display:flex;gap:1rem;margin:0.8rem 0;font-size:0.9rem">
+    <span>👁️ <strong>{{ ad.views }}</strong> vues</span>
+    <span>👆 <strong>{{ ad.clicks }}</strong> clics</span>
+    <span>📊 CTR : <strong>{{ ad.ctr }}%</strong></span>
+  </div>
+
+  {% if ad.is_approved and ad.starts_at and ad.ends_at %}
+  <p style="font-size:0.85rem;color:#666">
+    📅 Du {{ ad.starts_at.strftime('%d/%m/%Y') }} au {{ ad.ends_at.strftime('%d/%m/%Y') }}
+  </p>
+  {% endif %}
+
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.7rem">
+    {% if ad.payment_status == 'awaiting_payment' %}
+      <a class="btn btn-sm btn-accent" href="/advertisers/{{ ad.id }}/pay">💳 Payer maintenant</a>
+    {% endif %}
+    <a class="btn btn-sm" href="/advertisers/{{ ad.id }}">📊 Détails</a>
+    {% if ad.payment_status == 'paid' %}
+    <form method="post" action="/advertisers/{{ ad.id }}/toggle" class="inline-form">
+      {{ csrf_input() }}
+      <button class="btn btn-sm btn-ghost" type="submit">{{ '⏸️ Pause' if ad.is_active else '▶️ Activer' }}</button>
+    </form>
+    {% endif %}
+    {% if not ad.is_currently_active %}
+    <form method="post" action="/advertisers/{{ ad.id }}/delete" class="inline-form" onsubmit="return confirm('Supprimer ?')">
+      {{ csrf_input() }}
+      <button class="btn btn-sm btn-danger" type="submit">🗑️ Supprimer</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<div class="card">
+  <p>Aucune campagne pour le moment. <a href="/advertisers/new">Créer ma première campagne</a></p>
+</div>
+{% endfor %}
+
+<div class="card" style="background:#f5f7f6;margin-top:2rem">
+  <h3 style="margin-top:0">💡 Comment ça marche ?</h3>
+  <ol style="padding-left:1.5rem;line-height:2">
+    <li>Vous créez votre campagne en choisissant une formule</li>
+    <li>Vous êtes redirigé vers la page de paiement</li>
+    <li>Vous réglez le montant par virement CCP et uploadez votre reçu</li>
+    <li>Un administrateur valide votre paiement et active votre campagne</li>
+    <li>Votre annonce apparaît sur la page d'accueil avec le label <strong>Sponsorisé</strong></li>
+    <li>Vous suivez les vues et les clics en temps réel</li>
+  </ol>
+</div>
+{% endblock %}

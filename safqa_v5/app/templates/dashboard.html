@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem">
+  <h1 style="margin:0">📊 Mon espace</h1>
+  <a href="/" class="btn btn-sm btn-ghost">🏠 Accueil</a>
+</div>
+<p style="color:#666;margin-bottom:1.5rem">
+  Bienvenue <strong>{{ current_user.full_name }}</strong>
+  {% if current_user.plan == 'premium' %}<span class="chip chip-warning">Premium</span>{% endif %}
+</p>
+
+{% if favorite_infos %}
+<div class="card" style="background:linear-gradient(135deg,#e3f5ec,#f5f7f6);border-left-color:#0e7c66">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+    <div>
+      <h2 style="margin:0;color:#0e7c66;font-size:1.1rem">🎯 Mes services favoris</h2>
+      <p style="margin:0.3rem 0 0;color:#666;font-size:0.85rem">Les recommandations sont filtrées selon ces secteurs</p>
+    </div>
+    <a href="/profile/notifications" class="btn btn-sm btn-ghost">⚙️ Modifier</a>
+  </div>
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.8rem">
+    {% for info in favorite_infos %}
+    <span style="background:{{ info.color }}15;color:{{ info.color }};border:1px solid {{ info.color }}40;padding:0.35rem 0.8rem;border-radius:20px;font-size:0.85rem;font-weight:600">
+      {{ info.icon }} {{ info.label }}
+    </span>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="card" style="background:#fffbf0;border-left-color:#f2a900">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+    <div>
+      <h2 style="margin:0;color:#8a5a00;font-size:1.1rem">🎯 Choisissez vos services favoris</h2>
+      <p style="margin:0.3rem 0 0;color:#666;font-size:0.85rem">Pour des recommandations personnalisées</p>
+    </div>
+    <a href="/profile/notifications" class="btn btn-sm btn-accent">⚙️ Configurer</a>
+  </div>
+</div>
+{% endif %}
+
+{% if favorite_infos %}
+<h2>⭐ Marchés recommandés pour vous</h2>
+{% if recommended %}
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem">
+  {% for item in recommended %}
+  {% set t = item.tender %}
+  <div class="card" style="border-left-color:#f2a900">
+    <div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.5rem">
+      {% for label in item.matched_labels %}
+      <span class="chip" style="background:#fff4d6;color:#856404;font-size:0.7rem">🎯 {{ label }}</span>
+      {% endfor %}
+    </div>
+    <h3 style="margin:0.3rem 0"><a href="/tenders/{{ t.id }}" style="color:#0e7c66;text-decoration:none">{{ t.title[:80] }}</a></h3>
+    <p style="font-size:0.85rem;color:#666">🏢 {{ t.agency[:50] }}</p>
+    <p style="font-size:0.85rem;color:#666">📍 {{ t.commune }} — ⏳ {{ t.deadline }}</p>
+    {% if t.budget_dzd %}<p style="font-size:0.85rem;color:#0e7c66;font-weight:600">💰 {{ "{:,}".format(t.budget_dzd) }} DA</p>{% endif %}
+    <a href="/tenders/{{ t.id }}" class="btn btn-sm">Voir le détail</a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card" style="background:#f5f7f6;text-align:center">
+  <p style="color:#666;margin:0">Aucun nouveau marché ne correspond actuellement à vos préférences.</p>
+</div>
+{% endif %}
+{% endif %}
+
+{% if current_user.plan == 'premium' %}
+<div class="card" style="background:#e3f5ec;border-left-color:#0e7c66">
+  <h3 style="margin-top:0">💎 Vous êtes Premium</h3>
+  <p>Accès immédiat à toutes les offres + alertes SMS/WhatsApp.</p>
+</div>
+{% else %}
+<div class="card" style="background:#fffbf0;border-left-color:#f2a900">
+  <h3 style="margin-top:0;color:#8a5a00">⭐ Passez Premium</h3>
+  {% if has_premium_request %}
+    <p>⏳ Demande en cours de traitement.</p>
+  {% else %}
+    <p>Débloquez toutes les offres immédiatement + alertes illimitées.</p>
+    <a href="/upgrade" class="btn btn-accent">💎 Passer Premium — 1 500 DA/mois</a>
+  {% endif %}
+</div>
+{% endif %}
+
+<h2>📊 Mes marchés suivis ({{ follows|length }})</h2>
+{% if follows %}
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.7rem;margin:1rem 0">
+  {% for key, s in follow_statuses.items() %}
+  <div class="card" style="text-align:center;padding:1rem;border-left-color:{{ s.color }}">
+    <p style="font-size:1.8rem;margin:0;font-weight:bold;color:{{ s.color }}">{{ status_counts[key] }}</p>
+    <p style="margin:0.3rem 0 0;color:#666;font-size:0.85rem">{{ s.icon }} {{ s.label }}</p>
+  </div>
+  {% endfor %}
+</div>
+{% for f in follows %}
+<div class="card" style="border-left-color:{{ follow_statuses[f.status]['color'] }}">
+  <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.5rem">
+    <div style="flex:1;min-width:250px">
+      <h3 style="margin-top:0"><a href="/tenders/{{ f.tender.id }}" style="color:#0e7c66;text-decoration:none">{{ f.tender.title }}</a></h3>
+      <p style="font-size:0.9rem;color:#666">{{ f.tender.agency }} — {{ f.tender.deadline }} — <span class="chip">{{ f.tender.commune }}</span></p>
+      {% if f.notes %}<p style="font-size:0.85rem;color:#666">📝 {{ f.notes[:100] }}</p>{% endif %}
+    </div>
+    <span style="background:{{ follow_statuses[f.status]['color'] }};color:white;padding:0.2rem 0.7rem;border-radius:12px;font-size:0.85rem">
+      {{ follow_statuses[f.status]['icon'] }} {{ follow_statuses[f.status]['label'] }}
+    </span>
+  </div>
+</div>
+{% endfor %}
+<a class="btn btn-ghost" href="/my-calendar.ics">📅 Exporter mes échéances</a>
+{% else %}
+<div class="card"><p style="color:#666">Aucun marché suivi. Cliquez sur <strong>📊 Suivre ce marché</strong> depuis une offre.</p><a class="btn btn-sm" href="/">Parcourir les offres</a></div>
+{% endif %}
+
+<h2>📈 Statistiques</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:1rem 0">
+  <div class="card" style="text-align:center"><p style="font-size:2rem;margin:0;color:#0e7c66;font-weight:bold">{{ favs|length }}</p><p style="margin:0.3rem 0 0">Favoris</p></div>
+  <div class="card" style="text-align:center"><p style="font-size:2rem;margin:0;color:#f2a900;font-weight:bold">{{ alerts|length }}</p><p style="margin:0.3rem 0 0">Alertes</p></div>
+  <div class="card" style="text-align:center"><p style="font-size:2rem;margin:0;color:{{ '#c0392b' if unread > 0 else '#666' }};font-weight:bold">{{ unread }}</p><p style="margin:0.3rem 0 0">Notifs non lues</p></div>
+</div>
+
+<div class="card" style="background:#f5f7f6">
+  <h3 style="margin-top:0">⚡ Actions rapides</h3>
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+    <a class="btn btn-sm" href="/">📋 Offres</a>
+    <a class="btn btn-sm" href="/alerts">🔔 Alertes</a>
+    <a class="btn btn-sm" href="/notifications">📨 Notifications</a>
+    <a class="btn btn-sm" href="/partnerships">🤝 Groupements</a>
+    <a class="btn btn-sm" href="/my-professional">💼 Mon annuaire</a>
+    <a class="btn btn-sm btn-ghost" href="/profile/notifications">⚙️ Préférences</a>
+  </div>
+</div>
+
+<h2>⭐ Derniers favoris</h2>
+{% for f in favs %}
+<div class="card">
+  <h3 style="margin-top:0"><a href="/tenders/{{ f.tender.id }}" style="color:#0e7c66;text-decoration:none">{{ f.tender.title }}</a></h3>
+  <p>{{ f.tender.agency }} — {{ f.tender.deadline }}</p>
+</div>
+{% else %}
+<p style="color:#666">Aucun favori. <a href="/">Parcourir</a></p>
+{% endfor %}
+
+<h2>🔔 Mes alertes</h2>
+{% for a in alerts %}
+<div class="notif-item">
+  <span>
+    {% if a.sector %}<span class="chip">{{ sectors.get(a.sector, a.sector) }}</span>{% endif %}
+    {% if a.commune %}<span class="chip">📍 {{ a.commune }}</span>{% endif %}
+    {% if a.keywords %}<span class="chip">🔍 {{ a.keywords }}</span>{% endif %}
+    {% if a.email_notifications %}<span class="chip">📧</span>{% endif %}
+    {% if a.sms_notifications %}<span class="chip">📱</span>{% endif %}
+  </span>
+  <form method="post" action="/alerts/{{ a.id }}/delete" class="inline-form">
+    {{ csrf_input() }}
+    <button class="btn btn-sm btn-danger" type="submit">Supprimer</button>
+  </form>
+</div>
+{% else %}
+<p style="color:#666">Aucune alerte. <a href="/alerts">Créer une alerte</a></p>
+{% endfor %}
+
+<h2>📨 Dernières notifications</h2>
+{% for n in notifs %}
+<div class="notif-item {{ '' if n.is_read else 'unread' }}">
+  <div><strong>{{ n.tender.title }}</strong><br><small style="color:#666">{{ n.tender.deadline }}</small></div>
+  <span class="chip {{ '' if n.is_read else 'chip-warning' }}">{{ 'Nouveau' if not n.is_read else 'Lu' }}</span>
+</div>
+{% else %}
+<p style="color:#666">Aucune notification.</p>
+{% endfor %}
+
+{% if notifs %}
+<a class="btn btn-sm btn-ghost" href="/notifications">Voir toutes</a>
+{% endif %}
+{% endblock %}

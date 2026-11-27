@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🏛️ À propos de Safqa Belabbès</h1>
+
+<div class="card">
+  <h2 style="margin-top:0">Notre mission</h2>
+  <p><strong>Safqa Belabbès</strong> est une plateforme de veille des marchés publics de la wilaya de Sidi Bel Abbès.</p>
+  <p>Nous facilitons l'accès aux opportunités pour les PME, artisans et entreprises locales, en centralisant les appels d'offres et en offrant des outils de veille personnalisés.</p>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">🎯 Ce que nous offrons</h2>
+  <ul style="margin-left:1.5rem;line-height:2">
+    <li>📋 <strong>Centralisation</strong> des appels d'offres de la wilaya</li>
+    <li>🔍 <strong>Recherche et filtres</strong> par secteur et commune</li>
+    <li>⭐ <strong>Favoris</strong> pour suivre les offres qui vous intéressent</li>
+    <li>🔔 <strong>Alertes personnalisées</strong> (secteur + commune + mots-clés)</li>
+    <li>📨 <strong>Notifications</strong> dès qu'une offre correspond à vos critères</li>
+    <li>📅 <strong>Export calendrier</strong> pour ne jamais manquer une échéance</li>
+    <li>📊 <strong>Statistiques</strong> sur les marchés publics locaux</li>
+    <li>📡 <strong>API publique</strong> pour les développeurs</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">💎 Nos formules</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:1rem">
+    <div style="padding:1rem;background:#f5f7f6;border-radius:10px">
+      <h3 style="color:#0e7c66">Gratuit</h3>
+      <p style="font-size:1.5rem;margin:0.5rem 0"><strong>0 DA</strong></p>
+      <ul style="list-style:none;padding:0;font-size:0.9rem">
+        <li>✓ Consulter toutes les offres</li>
+        <li>✓ 3 alertes</li>
+        <li>✓ Favoris illimités</li>
+      </ul>
+    </div>
+    <div style="padding:1rem;background:#fffbf0;border-radius:10px;border:2px solid #f2a900">
+      <h3 style="color:#f2a900">Premium</h3>
+      <p style="font-size:1.5rem;margin:0.5rem 0"><strong>1 500 DA</strong><small>/mois</small></p>
+      <ul style="list-style:none;padding:0;font-size:0.9rem">
+        <li>✓ Alertes illimitées</li>
+        <li>✓ Notifications prioritaires</li>
+        <li>✓ Accès API</li>
+        <li>✓ Support dédié</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">📡 API publique</h2>
+  <p>Les données sont accessibles librement :</p>
+  <pre style="background:#f6f9f8;padding:1rem;border-radius:6px;overflow-x:auto">GET <a href="/api/tenders">/api/tenders</a>
+
+Retourne : liste JSON des offres
+Paramètres : ?limit=50 (max 100)</pre>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0">📞 Contact</h2>
+  <p>Pour toute question : <strong>contact@safqa-belabbes.dz</strong></p>
+  <p style="color:#666;font-size:0.9rem">Projet de startup — Wilaya de Sidi Bel Abbès, Algérie</p>
+</div>
+
+<div class="card" style="background:#f5f7f6;border-left-color:#666">
+  <p style="font-size:0.9rem;color:#666;margin:0">
+    <strong>Version :</strong> 0.5 — Projet en développement. Les offres de démonstration sont fictives.
+    Vérifiez toujours l'avis officiel sur les portails officiels avant de soumissionner.
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📋 Offres des marches publics</h1>
+<p style="margin-bottom:1rem;color:#666">Sidi Bel Abbes — {{ tenders|length }} offre(s) disponible(s)</p>
+{% for t in tenders %}
+<div class="card">
+  <h3>{{ t.title }}</h3>
+  <p><strong>Organisme :</strong> {{ t.agency }}</p>
+  <p><strong>Date limite :</strong> {{ t.deadline }}</p>
+</div>
+{% else %}
+<p>Aucune offre pour le moment.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>⚙️ Administration</h1>
+<h2>Utilisateurs ({{ users|length }})</h2>
+{% for u in users %}
+<div class="card">
+  <strong>{{ u.email }}</strong> — {{ u.full_name }} — <span style="color:#0e7c66">{{ u.role }}</span>
+</div>
+{% endfor %}
+<h2>Offres ({{ tenders|length }})</h2>
+{% for t in tenders %}
+<div class="card">
+  <strong>{{ t.title }}</strong><br>
+  <span style="color:#666">{{ t.agency }} — {{ t.deadline }}</span>
+</div>
+{% endfor %}
+{% endblock %}

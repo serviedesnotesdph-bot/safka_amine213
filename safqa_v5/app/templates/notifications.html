@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📨 Notifications</h1>
+{% if notifs %}
+<form method="post" action="/notifications/read" class="inline-form" style="margin-bottom:1rem">
+  {{ csrf_input() }}
+  <button class="btn btn-sm" type="submit">Tout marquer comme lu</button>
+</form>
+{% endif %}
+{% for n in notifs %}
+<div class="notif-item {{ '' if n.is_read else 'unread' }}">
+  <div>
+    <strong>{{ n.tender.title }}</strong><br>
+    <small>{{ n.tender.agency }} — Date limite : {{ n.tender.deadline }}</small>
+  </div>
+  <span class="chip {{ '' if n.is_read else 'chip-warning' }}">{{ 'Nouveau' if not n.is_read else 'Lu' }}</span>
+</div>
+{% else %}
+<p style="color:#666">Aucune notification.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>💼 Mon profil annuaire</h1>
+
+{% if not prof %}
+<div class="card" style="text-align:center;padding:3rem">
+  <p style="font-size:3rem;margin:0">📇</p>
+  <h2 style="margin:1rem 0">Vous n'avez pas encore de profil</h2>
+  <p style="color:#666;margin-bottom:1.5rem">Inscrivez-vous dans l'annuaire pour être visible par les entreprises de Sidi Bel Abbès.</p>
+  <p style="color:#f2a900;font-weight:bold;margin-bottom:1rem">💰 3 000 DA pour 6 mois</p>
+  <a href="/my-professional/register" class="btn btn-accent" style="padding:0.9rem 2rem">Créer mon profil</a>
+</div>
+{% else %}
+{% set cat = professional_categories.get(prof.category, {}) %}
+
+<div class="card" style="background:{{ '#fffbf0' if prof.payment_status == 'awaiting_payment' else ('#fff4d6' if prof.payment_status == 'awaiting_validation' else ('#e3f5ec' if prof.is_published else '#f8d7da')) }};border-left-color:{{ cat.color or '#0e7c66' }}">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+    <div>
+      <h2 style="margin:0">{{ prof.business_name }}</h2>
+      <p style="margin:0.3rem 0 0;color:#666;font-size:0.9rem">{{ cat.icon }} {{ cat.label }} — 📍 {{ prof.commune }}</p>
+    </div>
+    <div>
+      {% if prof.payment_status == 'awaiting_payment' %}
+        <span class="chip" style="background:#f8d7da;color:#721c24">💳 Paiement requis</span>
+      {% elif prof.payment_status == 'awaiting_validation' %}
+        <span class="chip" style="background:#fff4d6;color:#856404">⏳ En validation</span>
+      {% elif prof.payment_status == 'rejected' %}
+        <span class="chip" style="background:#f8d7da;color:#721c24">❌ Rejeté</span>
+      {% elif prof.is_published %}
+        <span class="chip" style="background:#d4edda;color:#155724">✅ Publié</span>
+      {% elif not prof.is_active %}
+        <span class="chip" style="background:#fff4d6;color:#856404">⏸️ En pause</span>
+      {% else %}
+        <span class="chip" style="background:#d1ecf1;color:#0c5460">⏱️ Expiré</span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if prof.payment_status == 'awaiting_payment' %}
+    <div style="margin-top:1rem">
+      <p style="margin:0;color:#666">Réglez les frais d'inscription (3 000 DA) par virement CCP, puis uploadez le reçu.</p>
+      <a href="/my-professional/{{ prof.id }}/pay" class="btn btn-accent" style="margin-top:0.7rem">💳 Payer 3 000 DA</a>
+    </div>
+  {% elif prof.is_published %}
+    <p style="margin:1rem 0 0;color:#666;font-size:0.9rem">
+      Publié jusqu'au <strong>{{ prof.ends_at.strftime('%d/%m/%Y') if prof.ends_at else '—' }}</strong>
+    </p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.7rem">
+      <a href="/directory/{{ prof.id }}" class="btn btn-sm">👁️ Voir mon profil public</a>
+      <a href="/my-professional/edit" class="btn btn-sm btn-ghost">✏️ Modifier</a>
+      <form method="post" action="/my-professional/toggle" class="inline-form">
+        {{ csrf_input() }}
+        <button class="btn btn-sm {{ 'btn-ghost' if prof.is_active else '' }}" type="submit">
+          {{ '⏸️ Mettre en pause' if prof.is_active else '▶️ Réactiver' }}
+        </button>
+      </form>
+    </div>
+  {% endif %}
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-top:1.5rem">
+  <div class="card" style="text-align:center;padding:1.5rem">
+    <p style="font-size:2rem;margin:0;color:#0e7c66;font-weight:bold">{{ prof.views }}</p>
+    <p style="margin:0.3rem 0 0;color:#666;font-size:0.9rem">👁️ Vues</p>
+  </div>
+  <div class="card" style="text-align:center;padding:1.5rem">
+    <p style="font-size:2rem;margin:0;color:#c0392b;font-weight:bold">{{ prof.phone_clicks }}</p>
+    <p style="margin:0.3rem 0 0;color:#666;font-size:0.9rem">📞 Appels</p>
+  </div>
+  <div class="card" style="text-align:center;padding:1.5rem">
+    <p style="font-size:2rem;margin:0;color:#f2a900;font-weight:bold">{{ prof.price_dzd }}</p>
+    <p style="margin:0.3rem 0 0;color:#666;font-size:0.9rem">DA payés</p>
+  </div>
+</div>
+
+{% if prof.payment_status == 'paid' %}
+<div class="card" style="margin-top:1.5rem">
+  <h3 style="margin-top:0">💡 Améliorez votre visibilité</h3>
+  <p style="color:#666;font-size:0.9rem">
+    Ajoutez une photo de profil, une galerie de vos travaux et des services détaillés pour attirer plus de clients.
+  </p>
+  <a href="/my-professional/edit" class="btn btn-sm" style="margin-top:0.5rem">✏️ Modifier mon profil</a>
+</div>
+{% endif %}
+{% endif %}
+
+<div style="text-align:center;margin-top:2rem">
+  <a href="/dashboard" class="btn btn-ghost">← Tableau de bord</a>
+</div>
+{% endblock %}

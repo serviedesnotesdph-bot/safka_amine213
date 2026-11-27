@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem">
+  <h1 style="margin:0">⚙️ Mes préférences</h1>
+  <a href="/dashboard" class="btn btn-sm btn-ghost">← Tableau de bord</a>
+</div>
+
+<form method="post">
+  {{ csrf_input() }}
+
+  {# SERVICES FAVORIS #}
+  <div class="card">
+    <h2 style="margin-top:0;color:#0e7c66">🎯 Mes services favoris</h2>
+    <p style="color:#666;font-size:0.9rem;margin-bottom:1rem">Sélectionnez les secteurs qui vous intéressent.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.7rem">
+      {% for key, info in favorite_sectors.items() %}
+      {% set is_checked = key in current_user.favorite_sector_list %}
+      <label style="display:flex;align-items:center;gap:0.7rem;padding:0.9rem 1rem;border:2px solid {{ '#0e7c66' if is_checked else '#e0e0e0' }};border-radius:10px;cursor:pointer;background:{{ '#e3f5ec' if is_checked else '#fff' }};font-weight:normal;margin:0">
+        <input type="checkbox" name="favorite_sectors" value="{{ key }}" {{ 'checked' if is_checked }} style="width:auto;accent-color:#0e7c66">
+        <span style="font-size:1.5rem">{{ info.icon }}</span>
+        <div>
+          <span style="font-weight:600;display:block">{{ info.label }}</span>
+          <small style="color:#999;font-size:0.75rem">{{ info.label_full }}</small>
+        </div>
+      </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# CANAUX DE NOTIFICATION #}
+  <div class="card">
+    <h2 style="margin-top:0;color:#0e7c66">🔔 Canaux de notification</h2>
+    <label style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border:1px solid #e0e0e0;border-radius:10px;margin-bottom:0.8rem;cursor:pointer;font-weight:normal;background:{{ '#e3f5ec' if current_user.email_notifications else '#fff' }}">
+      <div style="display:flex;align-items:center;gap:0.9rem">
+        <span style="font-size:1.8rem">📧</span>
+        <div><strong style="display:block">Email</strong><small>{{ current_user.email }}</small></div>
+      </div>
+      <input type="checkbox" name="email_notifications" {{ 'checked' if current_user.email_notifications }} style="width:auto;accent-color:#0e7c66;transform:scale(1.4)">
+    </label>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border:2px solid {{ '#f2a900' if not current_user.is_premium else '#e0e0e0' }};border-radius:10px;margin-bottom:0.8rem;background:{{ '#fffbf0' if not current_user.is_premium else ('#e3f5ec' if current_user.sms_notifications else '#fff') }};{{ 'opacity:0.85' if not current_user.is_premium }}">
+      <div style="display:flex;align-items:center;gap:0.9rem;flex:1">
+        <span style="font-size:1.8rem">📱</span>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+            <strong>SMS</strong><span class="chip chip-warning" style="font-size:0.7rem">Premium</span>
+          </div>
+          <small style="color:#666">
+            {% if not current_user.is_premium %}Réservé aux Premium
+            {% elif current_user.phone %}Envoyés au {{ current_user.phone }}
+            {% else %}⚠️ Ajoutez un téléphone{% endif %}
+          </small>
+        </div>
+      </div>
+      {% if current_user.is_premium %}
+        <input type="checkbox" name="sms_notifications" {{ 'checked' if current_user.sms_notifications }} style="width:auto;accent-color:#0e7c66;transform:scale(1.4)">
+      {% else %}
+        <a href="/upgrade" class="btn btn-sm btn-accent">🔓 Débloquer</a>
+      {% endif %}
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;border:2px solid {{ '#f2a900' if not current_user.is_premium else '#e0e0e0' }};border-radius:10px;background:{{ '#fffbf0' if not current_user.is_premium else '#fff' }};{{ 'opacity:0.85' if not current_user.is_premium }}">
+      <div style="display:flex;align-items:center;gap:0.9rem;flex:1">
+        <span style="font-size:1.8rem">💬</span>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+            <strong>WhatsApp</strong><span class="chip chip-warning" style="font-size:0.7rem">Premium</span>
+          </div>
+          <small style="color:#666">
+            {% if not current_user.is_premium %}Réservé aux Premium
+            {% elif current_user.phone %}Envoyés au {{ current_user.phone }}
+            {% else %}⚠️ Ajoutez un téléphone{% endif %}
+          </small>
+        </div>
+      </div>
+      {% if current_user.is_premium %}
+        <span class="chip" style="background:#fff4d6;color:#856404;font-size:0.75rem">Bientôt</span>
+      {% else %}
+        <a href="/upgrade" class="btn btn-sm btn-accent">🔓 Débloquer</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {# PROFIL ENTREPRISE #}
+  <div class="card">
+    <h2 style="margin-top:0;color:#0e7c66">🏢 Profil entreprise</h2>
+    <label>Nom de l'entreprise<input type="text" name="company" value="{{ current_user.company or '' }}" maxlength="150"></label>
+    <label>Secteur principal
+      <select name="sector_activity">
+        <option value="">— Aucun —</option>
+        {% for key, info in favorite_sectors.items() %}<option value="{{ key }}" {{ 'selected' if current_user.sector_activity == key }}>{{ info.icon }} {{ info.label }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Commune
+      <select name="commune">
+        <option value="">— Aucune —</option>
+        {% for c in communes %}<option value="{{ c }}" {{ 'selected' if current_user.commune == c }}>{{ c }}</option>{% endfor %}
+      </select>
+    </label>
+  </div>
+
+  <button class="btn btn-accent" type="submit" style="width:100%;padding:0.9rem">💾 Enregistrer mes préférences</button>
+</form>
+{% endblock %}

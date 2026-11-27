@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<p><a href="/partnerships">← Retour aux groupements</a></p>
+
+<div class="card" style="border-left-width:6px">
+  <h1 style="margin-top:0">{{ ad.tender_title }}</h1>
+
+  {% if ad.user_id != current_user.id %}
+  <div style="background:{{ '#e3f5ec' if score >= 70 else ('#fffbf0' if score >= 40 else '#f5f7f6') }};padding:1rem;border-radius:8px;margin:1rem 0">
+    <strong>🎯 Score de compatibilité avec votre profil : {{ score }}%</strong>
+    {% if score >= 70 %}
+      <p style="margin:0.3rem 0 0;font-size:0.9rem;color:#0a5c4b">Excellent match ! Cette entreprise recherche un profil complémentaire au vôtre.</p>
+    {% elif score >= 40 %}
+      <p style="margin:0.3rem 0 0;font-size:0.9rem;color:#8a5a00">Compatibilité moyenne. Contactez pour discuter.</p>
+    {% else %}
+      <p style="margin:0.3rem 0 0;font-size:0.9rem;color:#666">Faible compatibilité. Complétez votre profil pour améliorer le score.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <p><strong>Profil recherché :</strong> {{ ad.looking_for }}</p>
+  {% if ad.sector_wanted %}
+    <p><strong>Secteur :</strong> <span class="chip">{{ sectors.get(ad.sector_wanted, ad.sector_wanted) }}</span></p>
+  {% endif %}
+  {% if ad.commune_wanted %}
+    <p><strong>Commune :</strong> <span class="chip">📍 {{ ad.commune_wanted }}</span></p>
+  {% endif %}
+
+  {% if ad.message %}
+  <div style="margin-top:1rem;padding:1rem;background:#f6f9f8;border-radius:8px">
+    <strong>Message :</strong>
+    <p style="margin-top:0.5rem">{{ ad.message }}</p>
+  </div>
+  {% endif %}
+
+  <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid #eee">
+    <h3>👤 Annonceur</h3>
+    <p><strong>{{ author.company or author.full_name }}</strong></p>
+    {% if author.sector_activity %}
+      <p><span class="chip">{{ sectors.get(author.sector_activity, author.sector_activity) }}</span></p>
+    {% endif %}
+    {% if ad.contact_phone %}
+      <p style="margin-top:1rem">
+        <a href="tel:{{ ad.contact_phone }}" class="btn">📞 {{ ad.contact_phone }}</a>
+        {% if ad.contact_phone.startswith('0') %}
+          <a href="https://wa.me/213{{ ad.contact_phone[1:] }}" target="_blank" class="btn btn-ghost">💬 WhatsApp</a>
+        {% endif %}
+      </p>
+    {% endif %}
+  </div>
+
+  {% if ad.user_id == current_user.id %}
+  <div style="margin-top:1.5rem">
+    <form method="post" action="/partnerships/{{ ad.id }}/close" class="inline-form">
+      {{ csrf_input() }}
+      <button class="btn btn-danger" type="submit">Clôturer cette annonce</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

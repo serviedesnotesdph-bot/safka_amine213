@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📇 Annuaire des professionnels</h1>
+<p style="color:#666;margin-bottom:1.5rem">
+  Trouvez un électricien, plombier, maçon, informaticien... à Sidi Bel Abbès.
+</p>
+
+{% if current_user.is_authenticated and not current_user.is_admin %}
+<div class="card" style="background:#fffbf0;border-left-color:#f2a900;padding:1rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
+    <div>
+      <strong>💼 Vous êtes un professionnel ?</strong>
+      <p style="margin:0.3rem 0 0;color:#666;font-size:0.85rem">Inscrivez-vous dans l'annuaire pour être visible (3 000 DA / 6 mois)</p>
+    </div>
+    <a class="btn btn-accent btn-sm" href="/my-professional">📝 S'inscrire</a>
+  </div>
+</div>
+{% endif %}
+
+{# Catégories populaires #}
+<h2>🎯 Catégories</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.7rem;margin:1rem 0">
+  <a href="/directory" class="card" style="text-align:center;padding:1rem;text-decoration:none;{{ 'border-left-color:#f2a900;background:#fffbf0' if not category else '' }}">
+    <div style="font-size:1.8rem">📋</div>
+    <div style="font-size:0.85rem;font-weight:600;margin-top:0.3rem">Toutes</div>
+  </a>
+  {% for key, info in professional_categories.items() %}
+    {% if category_counts.get(key, 0) > 0 or category == key %}
+    <a href="/directory?category={{ key }}" class="card" style="text-align:center;padding:1rem;text-decoration:none;border-left-color:{{ info.color }};{{ 'background:' + info.color + '15' if category == key }}">
+      <div style="font-size:1.8rem">{{ info.icon }}</div>
+      <div style="font-size:0.85rem;font-weight:600;margin-top:0.3rem;color:#12263a">{{ info.label }}</div>
+      <div style="font-size:0.7rem;color:#999">{{ category_counts.get(key, 0) }}</div>
+    </a>
+    {% endif %}
+  {% endfor %}
+</div>
+
+{# Filtres #}
+<form method="get" class="filters">
+  <label>Recherche
+    <input type="search" name="q" value="{{ q }}" placeholder="Nom, service, mot-clé...">
+  </label>
+  <label>Catégorie
+    <select name="category">
+      <option value="">Toutes</option>
+      {% for key, info in professional_categories.items() %}
+        <option value="{{ key }}" {{ 'selected' if category == key }}>{{ info.icon }} {{ info.label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Commune
+    <select name="commune">
+      <option value="">Toutes</option>
+      {% for c in communes %}
+        <option value="{{ c }}" {{ 'selected' if commune == c }}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button class="btn" type="submit">Filtrer</button>
+  <a class="btn btn-ghost" href="/directory">Réinitialiser</a>
+</form>
+
+{# Résultats #}
+<p style="color:#666;font-size:0.9rem;margin:1rem 0">{{ professionals|length }} professionnel(s) trouvé(s)</p>
+
+{% if professionals %}
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem">
+  {% for p in professionals %}
+  {% set cat = professional_categories.get(p.category, {}) %}
+  <a href="/directory/{{ p.id }}" class="card" style="text-decoration:none;padding:1.2rem;border-left-color:{{ cat.color or '#0e7c66' }};transition:transform 0.2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+    <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.7rem">
+      <div style="width:50px;height:50px;border-radius:50%;background:{{ cat.color or '#0e7c66' }}20;display:flex;align-items:center;justify-content:center;font-size:1.5rem">{{ cat.icon or '👤' }}</div>
+      <div style="flex:1;min-width:0">
+        <h3 style="margin:0;font-size:1rem;color:#12263a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.business_name }}</h3>
+        <p style="margin:0.2rem 0;font-size:0.8rem;color:{{ cat.color }};font-weight:600">{{ cat.label }}</p>
+      </div>
+    </div>
+    <p style="font-size:0.85rem;color:#666;margin:0.5rem 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ p.description }}</p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;font-size:0.8rem;margin-top:0.5rem">
+      <span class="chip" style="font-size:0.7rem">📍 {{ p.commune }}</span>
+      {% if p.years_experience %}
+        <span class="chip" style="font-size:0.7rem">⭐ {{ p.years_experience }} ans</span>
+      {% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card" style="text-align:center;padding:3rem">
+  <p style="font-size:2rem;margin:0">🔍</p>
+  <p style="color:#666;margin-top:1rem">Aucun professionnel trouvé pour ces critères.</p>
+  <a class="btn btn-ghost btn-sm" href="/directory">Voir tous les professionnels</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🤝 Groupements d'entreprises</h1>
+<p style="color:#666;margin-bottom:1.5rem">
+  Trouvez des partenaires pour soumissionner ensemble aux marchés publics.
+  Le <strong>score de compatibilité</strong> est calculé selon votre profil (secteur, commune).
+</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start">
+  <div>
+    <h2>➕ Publier une recherche de partenaire</h2>
+    <form method="post" action="/partnerships/new" class="boxed-form">
+      {{ csrf_input() }}
+
+      <label>Marché concerné *
+        <input type="text" name="tender_title" required maxlength="300" placeholder="Ex: Travaux route Telagh">
+      </label>
+
+      <label>Profil recherché *
+        <input type="text" name="looking_for" required maxlength="300" placeholder="Ex: Entreprise électricité, génie civil...">
+      </label>
+
+      <label>Secteur du partenaire (optionnel)
+        <select name="sector_wanted">
+          <option value="">— N'importe lequel —</option>
+          {% for k, v in sectors.items() %}
+            <option value="{{ k }}">{{ v }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Commune (optionnel)
+        <select name="commune_wanted">
+          <option value="">— Toute la wilaya —</option>
+          {% for c in communes %}
+            <option value="{{ c }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Message (optionnel)
+        <textarea name="message" rows="3" maxlength="1000" placeholder="Décrivez ce que vous cherchez..."></textarea>
+      </label>
+
+      <label>Téléphone de contact
+        <input type="tel" name="contact_phone" value="{{ current_user.phone or '' }}" maxlength="20">
+      </label>
+
+      <button class="btn" type="submit">Publier l'annonce</button>
+    </form>
+  </div>
+
+  <div>
+    <h2>📢 Mes annonces ({{ my_ads|length }})</h2>
+    {% for ad in my_ads %}
+    <div class="card" style="{{ 'opacity:0.6' if not ad.is_open }}">
+      <h3>{{ ad.tender_title }}</h3>
+      <p><strong>Recherche :</strong> {{ ad.looking_for }}</p>
+      {% if ad.sector_wanted %}<p><span class="chip">{{ sectors.get(ad.sector_wanted, ad.sector_wanted) }}</span></p>{% endif %}
+      <div style="display:flex;gap:0.5rem;margin-top:0.5rem">
+        <a href="/partnerships/{{ ad.id }}" class="btn btn-sm">Voir</a>
+        {% if ad.is_open %}
+        <form method="post" action="/partnerships/{{ ad.id }}/close" class="inline-form">
+          {{ csrf_input() }}
+          <button class="btn btn-sm btn-danger" type="submit">Clôturer</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <p style="color:#666">Vous n'avez pas encore publié d'annonce.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<h2 style="margin-top:2rem">🎯 Opportunités compatibles avec votre profil</h2>
+{% if not current_user.sector_activity and not current_user.commune %}
+<div class="card" style="background:#fffbf0;border-left-color:#f2a900">
+  <p>💡 <strong>Conseil :</strong> complétez votre profil (secteur + commune) pour recevoir un meilleur matching.</p>
+  <a href="/profile/notifications" class="btn btn-sm">Compléter mon profil</a>
+</div>
+{% endif %}
+
+{% for item in scored_ads %}
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:start">
+    <div style="flex:1">
+      <h3>{{ item.ad.tender_title }}</h3>
+      <p><strong>Recherche :</strong> {{ item.ad.looking_for }}</p>
+      {% if item.ad.sector_wanted %}<p><span class="chip">{{ sectors.get(item.ad.sector_wanted, item.ad.sector_wanted) }}</span></p>{% endif %}
+      {% if item.ad.commune_wanted %}<p><span class="chip">📍 {{ item.ad.commune_wanted }}</span></p>{% endif %}
+    </div>
+    <div style="text-align:center;min-width:100px">
+      <div style="font-size:2rem;font-weight:bold;color:{{ '#0e7c66' if item.score >= 70 else ('#f2a900' if item.score >= 40 else '#999') }}">
+        {{ item.score }}%
+      </div>
+      <small style="color:#666;font-size:0.75rem">compatibilité</small>
+    </div>
+  </div>
+  <a href="/partnerships/{{ item.ad.id }}" class="btn btn-sm" style="margin-top:0.5rem">Voir le détail</a>
+</div>
+{% else %}
+<p style="color:#666">Aucune annonce disponible pour le moment.</p>
+{% endfor %}
+{% endblock %}

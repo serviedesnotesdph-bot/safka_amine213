@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📈 Statistiques</h1>
+
+<div class="card" style="text-align:center">
+  <p style="font-size:3rem;margin:0;color:#0e7c66"><strong>{{ total }}</strong></p>
+  <p>offres publiees au total</p>
+</div>
+
+<h2>Offres par secteur</h2>
+{% for label, count in sector_counts %}
+<div style="margin:0.5rem 0">
+  <div style="display:flex;justify-content:space-between;font-size:0.9rem;margin-bottom:0.2rem">
+    <span>{{ label }}</span><strong>{{ count }}</strong>
+  </div>
+  <div style="background:#e3f5ec;height:10px;border-radius:6px;overflow:hidden">
+    <div style="background:#0e7c66;height:100%;width:{{ (100 * count / max_sector) | round | int }}%"></div>
+  </div>
+</div>
+{% else %}
+<p style="color:#666">Aucune donnee.</p>
+{% endfor %}
+
+<h2>Top 10 communes</h2>
+{% for name, count in commune_counts %}
+<div style="margin:0.5rem 0">
+  <div style="display:flex;justify-content:space-between;font-size:0.9rem;margin-bottom:0.2rem">
+    <span>{{ name }}</span><strong>{{ count }}</strong>
+  </div>
+  <div style="background:#fff4d6;height:10px;border-radius:6px;overflow:hidden">
+    <div style="background:#f2a900;height:100%;width:{{ (100 * count / max_commune) | round | int }}%"></div>
+  </div>
+</div>
+{% else %}
+<p style="color:#666">Aucune donnee.</p>
+{% endfor %}
+
+<h2>📡 API publique</h2>
+<div class="card">
+  <p>Les donnees sont accessibles au format JSON :</p>
+  <p><a href="/api/tenders" target="_blank"><code>GET /api/tenders</code></a></p>
+</div>
+{% endblock %}
