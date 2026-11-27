@@ -1407,13 +1407,22 @@ def admin_send_reminders():
 # ============================================================
 @bp.route("/chatbot", methods=["GET", "POST"])
 def chatbot():
+
+    # 🔒 Accès réservé aux Premium
+    if not current_user.is_authenticated:
+        flash("🔒 L'assistant IA est réservé aux membres Premium. Connectez-vous pour continuer.", "warning")
+        return redirect(url_for("routes.login", next=request.path))
+
+    if not current_user.is_premium:
+        flash("🔒 L'assistant IA est une fonctionnalité Premium. Passez à Premium pour y accéder.", "warning")
+        return redirect(url_for("routes.pricing"))
+
     from app.services.ai_chatbot import analyze_chat_request, analyze_tender_text
 
     analysis = None
     question = ""
     response_text = None
 
-    # Lire chat_type depuis GET (?type=tender ou ?type=service)
     chat_type = request.args.get("type", "tender")
     if chat_type not in ("tender", "service"):
         chat_type = "tender"
@@ -1441,7 +1450,6 @@ def chatbot():
                     conversation_id=conv_id, role="user", content=content[:5000]
                 ))
 
-            # Traiter avec le chatbot
             response_text = analyze_chat_request(chat_type, content)
 
             if conv_id:
@@ -1458,7 +1466,13 @@ def chatbot():
                            analysis=analysis,
                            question=question,
                            response_text=response_text,
-                           chat_type=chat_type)
+                           chat_type=chat_type)   
+
+            
+                  
+          
+
+   
             
            
 
